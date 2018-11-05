@@ -1,0 +1,3 @@
+FROM simulator
+
+COPY src/argos_bridge/ /root/catkin_ws/src/argos_bridge

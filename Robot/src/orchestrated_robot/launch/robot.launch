@@ -1,0 +1,41 @@
+<launch>
+  <arg name="fleetmanager_url" default="localhost:5001" />
+  <arg name="robot_name" default="robot" />
+  <arg name="fleetmanager_version" default="1" />
+  <arg name="simulator_nimbro_target" default="simulator-nimbro-0" />
+  <arg name="simulator_nimbro_port" default="17000" />
+  <arg name="robot_nimbro_port" default="17000" />
+  <arg name="map_file" default="map-simple" />
+  <arg name="verbose" default="False" />
+  <arg name="protocol" default="tcp" />
+
+  <rosparam param="use_sim_time">true</rosparam>
+
+  <node pkg="orchestrated_robot" type="robot_controller.py" name="" output="screen" required="true">
+    <rosparam param="fleetmanager_url" subst_value="True">$(arg fleetmanager_url)</rosparam>
+    <rosparam param="fleetmanager_version" subst_value="True">$(arg fleetmanager_version)</rosparam>
+    <rosparam param="robot_name" subst_value="True">$(arg robot_name)</rosparam>
+  </node>
+
+  <node pkg="orchestrated_robot" type="telemetry_controller.py" name="" output="screen">
+  </node>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find argos_map)/map/$(arg map_file).yaml" >
+    <param name="frame_id" value="map" />
+  </node> 
+  
+  <include file="$(find robot_nimbro)/launch/topic_senders.launch">
+    <arg name="target" value="$(arg simulator_nimbro_target)" />
+    <arg name="port" value="$(arg simulator_nimbro_port)" />
+    <arg name="protocol" value="$(arg protocol)" />
+  </include>
+
+  <include file="$(find robot_nimbro)/launch/topic_receivers.launch">
+    <arg name="port" value="$(arg robot_nimbro_port)" />
+    <arg name="protocol" value="$(arg protocol)" />
+  </include>
+
+  <include file="$(find simulated_robot)/planning/planning.launch" />
+
+  <include file="$(find simulated_robot)/static_laser/laser_transform.launch" />
+</launch>

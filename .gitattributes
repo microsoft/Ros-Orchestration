@@ -1,0 +1,5 @@
+# Do not convert line endings for shell scripts
+*.sh -crlf
+
+# Do not convert line endings for ros /usr/bin/env python scripts
+*.py -crlf
