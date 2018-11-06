@@ -26,3 +26,42 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+#map {
+    padding: 100px;
+}
+
+.legend {
+    font-weight: 300;
+    font-family: "Work Sans";
+    font-size: 18px;
+    font-style: oblique;
+}
+
+.cursortext {
+    font-weight: 300;
+    font-family: "Work Sans";
+    font-size: 12px;
+}
+
+.robotLabels {
+  font-weight: 300;
+  font-family: "Work Sans";
+  font-size: 10px;
+}

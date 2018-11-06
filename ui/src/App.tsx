@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import './App.css';
 import Configuration from './Configuration';
+import Map from './Map';
 import OrderTable from './OrderTable';
 import RobotView from './RobotView';
 
@@ -42,6 +43,9 @@ class App extends React.Component<any, any>{
             </Tab>
             <Tab eventKey={2} title="Orders">
               <OrderTable />
+            </Tab>
+            <Tab eventKey={3} title="D3">
+              <Map />
             </Tab>
           </Tabs>
         }
