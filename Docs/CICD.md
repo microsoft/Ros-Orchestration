@@ -14,7 +14,7 @@ For more information on yaml builds, see [YAML Schema Reference](https://docs.mi
 
 For each of the APIs and UI projects, create a new Build Pipeline and reference the corresponding yaml file
 
-<img src="../images/ReferenceYamlFile.png" alt="Reference Yaml File" width="600" />
+<img src="../images/ReferenceYamlFile.PNG" alt="Reference Yaml File" width="600" />
 
 ## Continuous Deployment
 
@@ -31,7 +31,7 @@ In order to create the Continuous Deployment releases in Azure DevOps, use the A
 
 - Edit the fields in the "Deploy Azure App Service" task as shown. Be sure to select the Package from your CI build.
 
-<img src="../images/DeployTask.png" alt="Edit Azure Deploy Task" width="600" />
+<img src="../images/DeployTask.PNG" alt="Edit Azure Deploy Task" width="600" />
 
 - Save and Queue your Release. It will automatically pick up the latest _ReactApp-CI artifact. To test a release for a specific artifact, find the specific build in your CI History, and click 'Release'.
 - Repeat these steps for all Web APIs (OrderProducer, OrderManager, FleetManager, and Dispatcher)
@@ -45,4 +45,4 @@ In order to create the Continuous Deployment releases in Azure DevOps, use the A
 
 - Add variables to the release as shown below to point at your APIs
 
-<img src="../images/ReleaseVariables.png" alt="Release Variable" width="600" />
+<img src="../images/ReleaseVariables.PNG" alt="Release Variables" width="600" />
