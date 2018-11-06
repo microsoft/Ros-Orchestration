@@ -14,7 +14,7 @@ For more information on yaml builds, see [YAML Schema Reference](https://docs.mi
 
 For each of the APIs and UI projects, create a new Build Pipeline and reference the corresponding yaml file
 
-![Reference Yaml File](../images/ReferenceYamlFile.png =600x)
+<img src="../images/ReferenceYamlFile.PNG" alt="Reference Yaml File" width="600" />
 
 ## Continuous Deployment
 
@@ -22,16 +22,16 @@ In order to create the Continuous Deployment releases in Azure DevOps, use the A
 
 - Create a New Pipeline.
 
-![Create Release Pipeline](../images/CreatePipeline.png =600x)
+<img src="../images/CreatePipeline.png" alt="Create Release Pipeline" width="600" />
 
 - Select "Azure App Service Deployment" template, and name stage (i.e. 'Dev')
 - Open 'Tasks', and fill out required fields. Select your Azure Subscription, and the name of the App Service you want to deploy the app to.
 
-![Edit Tasks](../images/EditTasks.png =600x)
+<img src="../images/EditTasks.png" alt="Edit Tasks" width="600" />
 
 - Edit the fields in the "Deploy Azure App Service" task as shown. Be sure to select the Package from your CI build.
 
-![Edit Azure Deploy Task](../images/DeployTask.png =600x)
+<img src="../images/DeployTask.PNG" alt="Edit Azure Deploy Task" width="600" />
 
 - Save and Queue your Release. It will automatically pick up the latest _ReactApp-CI artifact. To test a release for a specific artifact, find the specific build in your CI History, and click 'Release'.
 - Repeat these steps for all Web APIs (OrderProducer, OrderManager, FleetManager, and Dispatcher)
@@ -41,8 +41,8 @@ In order to create the Continuous Deployment releases in Azure DevOps, use the A
 - Follow the steps above for the react app deployment, with the following steps as well
 - Edit the Azure App Service Deploy task for variable substitution in the file configuration.json. This will replace the variables in the json file with the variables in the next step during deployment
 
-![Json Variable Substitution](../images/JsonSubstitution.png =600x)
+<img src="../images/JsonSubstitution.png" alt="Json Variable Substitution" width="600" />
 
 - Add variables to the release as shown below to point at your APIs
 
-![Release Variable](../images/ReleaseVariables.png =600x)
+<img src="../images/ReleaseVariables.PNG" alt="Release Variables" width="600" />

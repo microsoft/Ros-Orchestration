@@ -21,7 +21,7 @@ See the **Ros-Simulation** docs/ContainerManagement.md for creating an Azure Con
 
 ## Install Helm Chart
 
-See the **Ros-Simulation** docs/RunSimulationEndToEnd.md for deploying simulation on your cluster and verifying the deployment. In the [values.yaml](../helm/ros-orchestrator/values.yaml), there are several parameters could be adjusted for your deployment. Please note that **fleetManagerUrl** and **fleetManagerVersion** are used to allow robots connect to Azure IOT hub, therefore, make sure they are correct in your deployment. 
+See the **Ros-Simulation** docs/RunSimulationEndToEnd.md for deploying simulation on your cluster and verifying the deployment. In the [values.yaml](../helm/ros-orchestrator/values.yaml), there are several parameters could be adjusted for your deployment. Please note that **fleetManagerUrl** and **fleetManagerVersion** are used to allow robots connect to Azure IOT hub, therefore, make sure they are correct in your deployment.
 
 | Property                  | Description       | Default                                                                 |
 |---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
@@ -57,6 +57,7 @@ To create a release, from the root folder run
 ## Upgrade Helm Release (if needed)
 
 In the case where an image tag changes, the robot count changes, you will need upgrade the release. To do this without deleting and re-releasing, upgrade from root folder using:
+
 ```console
 
 # Get release name
@@ -69,12 +70,13 @@ In the case where an image tag changes, the robot count changes, you will need u
 ## Delete Release (if needed)
 
 To delete the release, you will need its name
+
 ```console
 
 > helm list
 > helm delete <name> --purge
-
 ```
+
 Using '--purge' for deletion will remove the release name from your history, so that it can be used for another helm install (otherwise, it is kept around for rollbacks). If you do not use the purge option, and you are naming the releases, then you may run into conflicts when installing at a later time.
 
 Ensure all nodes are terminated before creating re-installing the chart
