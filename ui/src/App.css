@@ -49,13 +49,19 @@
 
 .legend {
     font-weight: 300;
-    font-family: "Helvetica Neue";
+    font-family: "Work Sans";
     font-size: 18px;
     font-style: oblique;
 }
 
 .cursortext {
     font-weight: 300;
-    font-family: "Helvetica Neue";
+    font-family: "Work Sans";
     font-size: 12px;
+}
+
+.robotLabels {
+  font-weight: 300;
+  font-family: "Work Sans";
+  font-size: 10px;
 }
