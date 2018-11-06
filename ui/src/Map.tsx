@@ -150,6 +150,7 @@ class Map extends React.Component <any, any> {
         svg.append("g")
             .attr("class", "grid")
             .attr("transform", "translate(0," + gridDimensions.height + ")")
+            .attr("pointer-events", "none")
             .call(this.makeGridlinesX(xRange)
                 .tickSize(-gridDimensions.height)
                 .tickFormat((domainValue: AxisDomain, index: number) => "")
@@ -158,6 +159,7 @@ class Map extends React.Component <any, any> {
         // add the Y gridlines
         svg.append("g")
             .attr("class", "grid")
+            .attr("pointer-events", "none")
             .call(this.makeGridlinesY(yRange)
                 .tickSize(-gridDimensions.width)
                 .tickFormat((domainValue: AxisDomain, index: number) => "")
@@ -175,19 +177,28 @@ class Map extends React.Component <any, any> {
     }
 
     public drawRobotsOnMap(xRange : any, yRange : any, svg : Selection<d3.BaseType, {}, null, undefined>, robotStates : any) {
-        
-        const circles = svg.selectAll("circle.robot")
+        const radius = 3.5;
+
+        const robotElements = svg.selectAll("circle.robot")
                 .data(robotStates, (d: any) => d.robotId)
                 .enter() // for each robot in robotStates
-                .append("circle")
+
+        robotElements.append("circle")
                 .attr("class", "robot")
-                .attr("r", 3.5)
+                .attr("r", radius)
                 .attr("pointer-events", "none")
                 .attr("cx", (d : any) => xRange(d.x))
                 .attr("cy", (d : any) => yRange(d.y))
                 .style("fill", (d : any) => this.getStatusColor(d.status));
 
-        return circles;
+        robotElements.append("text")
+                .text((d) => d.robotId )
+                .attr("x", (d : any) => xRange(d.x) + (radius / 2))
+                .attr("y", (d : any) => yRange(d.y) - radius)
+                .attr("pointer-events", "none")
+                .attr("class", "robotLabels")
+
+        return robotElements;
     }
 
     public drawLegend(xOffset: number, yOffset: number) {
