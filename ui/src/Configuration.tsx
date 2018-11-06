@@ -8,11 +8,16 @@ class Configuration
     public static orderManagerUrl : string = "localhost:44307";
     public static orderManagerVersion : string = "1";
 
-    public static canvasWidth : string = "600";
-    public static canvasHeight : string = "500";
+    public static mapWidthInPixels : string = "600";
+    public static mapHeightInPixels : string = "529";
 
-    public static mapWidth : string = "63.9000";
-    public static mapHeight : string = "56.3000";
+    public static marginsTop : string = "20";
+    public static marginsRight : string = "20";
+    public static marginsBottom : string = "200";
+    public static marginsLeft : string = "100";
+
+    public static mapWidthInMeters : string = "63.9000";
+    public static mapHeightInMeters : string = "56.3000";
 
     public static async initialize()
     {

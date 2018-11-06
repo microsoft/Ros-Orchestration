@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {Button, Col, Glyphicon, Grid, Row} from 'react-bootstrap';
+import Map from './Map';
 import Robot from './Robot';
 import RobotInfoPanel from './RobotInfoPanel';
 import RobotManagerClient from './RobotManagerClient';
-import RobotMap from './RobotMap';
 
 class RobotView extends React.Component <any, any>{
 
@@ -66,10 +66,10 @@ class RobotView extends React.Component <any, any>{
                     Refresh  <Glyphicon glyph="refresh" />
                 </Button>
                 <Row>
-                    <Col xs={12} md={7}>
-                        <RobotMap robots={this.state.robots} telemetries={this.state.telemetries} activeRobot={this.state.activeRobot}/>
+                    <Col xs={8} md={8}>
+                        <Map robots={this.state.robots} activeRobot={this.state.activeRobot}/>
                     </Col>
-                    <Col xs={12} md={5}>
+                    <Col xs={4} md={4}>
                         <RobotInfoPanel robots={this.state.robots} onSelect={this.onActiveRobot}/>
                     </Col>
                 </Row>
