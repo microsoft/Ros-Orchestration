@@ -76,6 +76,6 @@ This command will deploy the following resources:
 
 It may take around 10 minutes to deploy.
 
-The azuredeploy.json ARM template is safe to deploy as many times as needed, and changes will be automatically detected and deployed. Take care that app settings should be set only in the arm template, and manual app settings will be overriden by the template.
+The azuredeploy.json ARM template is safe to deploy as many times as needed, and changes will be automatically detected and deployed. Take care that app settings should be set only in the arm template, and manual app settings will be overridden by the template.
 
 The default modifier for the project is the envName 'dev'. If deploying to a second environment, you can add an optional `--parameters envName=prod` or other envName to the last two steps to recreate the entire environment.

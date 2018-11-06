@@ -2,7 +2,7 @@
 
 ## Diagram
 
-![Architecture Diagram](../images/OrchestratorArchitecture.png =600x)
+<img src="../images/OrchestratorArchitecture.png" alt="Architecture Diagram" width="600" />
 
 ## Web APIs
 
