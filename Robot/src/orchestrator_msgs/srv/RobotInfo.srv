@@ -1,0 +1,7 @@
+#request constants
+#request fields
+---
+#response fields
+string Status
+string OrderId
+string RobotId

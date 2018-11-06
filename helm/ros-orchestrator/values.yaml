@@ -1,0 +1,43 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+# Default values for ros-cluster.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# These values are used when running locally. 
+# These values can be overridden in the release definitions value section.
+
+robotPrefix: robot
+robotCount: 10
+simulatorThreadCount: 10
+registrySecret: "image-secret"
+robotTargetPrefix: robot-nimbro-
+simulatorTargetPrefix: simulator-nimbro-
+portBase: 17000
+nimbroProtocol: tcp # tcp or udp
+simulationCallbackTimeout: 0.1
+argosLaunchFile: "construct.argos"
+
+vncPassword: "vncpassword"
+
+fleetManagerUrl: "contoso-fleetmanager.azurewebsites.net"
+fleetManagerVersion: "1"
+
+simulatorImage:
+  repository: contoso.azurecr.io/simulator-orch
+  tag: latest
+  pullPolicy: Always
+
+robotImage:
+  repository: contoso.azurecr.io/robot-orch
+  tag: latest
+  pullPolicy: Always
+
+# Resources for robot containers
+resources:
+  limits:
+    cpu: 1
+    memory: 1024Mi
+  requests:
+    cpu: 1
+    memory: 1024Mi

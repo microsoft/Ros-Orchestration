@@ -1,0 +1,16 @@
+<launch>
+  <arg name="verbose" default="True" />
+  <arg name="connection_string" />
+  <node pkg="ros_azure_iothub" type="ros_azure_iothub" name="ros_azure_iothub" output="screen" args="-v $(arg verbose)">
+    <rosparam subst_value="true">
+      connection_string: $(arg connection_string)
+      prefs_storage_file: '$(find orchestrated_robot)/relay/iot_relay.conf'
+      timeout: 24100
+      minimum_polling_time: 9
+      message_timeout: 10000
+      iot_hub_relay_queue_size: 10
+      device_method_success_code: 200
+      device_method_failure_code: 500
+    </rosparam>
+  </node>
+</launch>

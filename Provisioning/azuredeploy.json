@@ -1,0 +1,499 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "envName": {
+      "type": "string",
+      "minLength": 3,
+      "metadata": {
+        "description": "Environment name (e.g. dev, prod)"
+      }
+    },
+    "keyVaultClientId": {
+      "type": "securestring",
+      "minLength": 1
+    },
+    "keyVaultClientSecret": {
+      "type": "securestring",
+      "minLength": 1
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "appServicePlanName": "[concat('robot-orch-plan-',parameters('envName'))]",
+    "appServicePlanSku": "S1",
+    "sharedAppSettings": {
+        "Vault": "[variables('keyVaultName')]",
+        "ClientId": "[parameters('keyVaultClientId')]",
+        "ClientSecret": "[parameters('keyVaultClientSecret')]"
+    },
+    "webAppConfig": [
+        {
+            "name": "[concat('robot-dispatcher-',parameters('envName'))]",
+            "specificAppSettings": {}
+        },
+        {
+            "name": "[concat('robot-fleetmanager-',parameters('envName'))]",
+            "specificAppSettings": {}
+        },
+        {
+            "name": "[concat('robot-ordermanager-',parameters('envName'))]",
+            "specificAppSettings": {
+                "DispatcherUrl": "[concat('https://', 'robot-dispatcher-', parameters('envName'), '.azurewebsites.net/api/v1/Jobs')]",
+                "FleetManagerUrl": "[concat('https://', 'robot-fleetmanager-', parameters('envName'), '.azurewebsites.net/api/v1/Robots')]"
+            }
+        },
+        {
+            "name": "[concat('robot-orderproducer-',parameters('envName'))]",
+            "specificAppSettings": {
+                "OrderManagerUrl": "[concat('https://', 'robot-ordermanager-', parameters('envName'), '.azurewebsites.net/api/v1/Orders')]"
+            }
+        },
+        {
+          "name": "[concat('robot-ui-',parameters('envName'))]",
+          "specificAppSettings": {
+              "REACT_APP_ORDERMANAGER_URL": "[concat('robot-ordermanager-', parameters('envName'), '.azurewebsites.net')]",
+              "REACT_APP_FLEETMANAGER_URL": "[concat('robot-fleetmanager-', parameters('envName'), '.azurewebsites.net')]"
+          }
+      }
+    ],
+    "iotHubName": "[concat('robot-orch-iot-',parameters('envName'))]",
+    "iotHubSkuName": "S1",
+    "iotHubCapacityUnits": 1,
+    "d2cMessageRetentionInDaysPeriod": 1,
+    "d2cPartitionCount": 2,
+    "opMonRetentionTimeInDays": 1,
+    "opMonPartitionCount": 2,
+    "c2dMessagesTTLAsIso8601": "PT1H",
+    "c2dMessagesMaxDeliveryCount": 10,
+    "c2dFeebackMessagesTTLAsIso8601": "PT1H",
+    "c2dFeedbackMessagesMaxDeliveryCount": "10",
+    "c2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
+    "storageAccountName": "[concat('robotorchpod',parameters('envName'))]",
+    "storageAccountType": "Standard_LRS",
+    "blobEncryptionEnabled": true,
+    "databaseAccountName": "[concat('robot-orch-cosmos-',parameters('envName'))]",
+    "offerType": "Standard",
+    "consistencyLevel": "Session",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "eventHubNamespaceName": "[concat('orchestrator-eh-',parameters('envName'))]",
+    "eventhubSku": "Standard",
+    "skuCapacity": 2,
+    "orderManagerEH": "orderManager",
+    "orderManagerEHCG": "orderManagerCG",
+    "fleetManagerEH": "fleetManager",
+    "fleetManagerEHCG": "fleetManagerCG",
+    "acrName": "[concat('robotorchacr', parameters('envName'))]",
+    "acrSku": "Standard",
+    "acrAdminUserEnabled": true,
+    "authorizationRules_iothubroutes": "[concat('iothubroutes_', variables('iotHubName'))]",
+    "authorizationRules_listener": "listener",
+    "keyVaultName": "[concat('robot-orch-kv-',parameters('envName'))]",
+    "iotHubServiceConnectionStringSecretName": "IotHubServiceConnectionString",
+    "iotHubRegistryConnectionStringSecretName": "IotHubRegistryConnectionString",
+    "cosmosDbEndpointUriSecretName": "CosmosDbEndpointUri",
+    "cosmosDbPrimaryKeySecretName": "CosmosDbPrimaryKey",
+    "orderManagerEHConnectionStringSecretName": "OrderManagerEventHubConnectionString",
+    "fleetManagerEHConnectionStringSecretName": "FleetManagerEventHubConnectionString",
+    "azureStorageSecretName": "BlobStorageConnectionString"
+},
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "type": "Microsoft.Web/serverfarms",
+      "kind": "app",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[variables('location')]",
+      "comments": "This app service plan is used for the web app and slots.",
+      "properties": {},
+      "dependsOn": [],
+      "sku": {
+        "name": "[variables('appServicePlanSku')]"
+      }
+    },
+    {
+        "apiVersion": "2016-08-01",
+        "type": "Microsoft.Web/sites",
+        "kind": "app",
+        "name": "[variables('webAppConfig')[copyIndex()]['name']]",
+        "location": "[variables('location')]",
+        "comments": "This is the web app, also the default 'nameless' slot.",
+        "properties": {
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+          "siteConfig":{
+              "alwaysOn": true,
+              "webSocketsEnabled": true
+          }
+        },
+        "copy": {
+            "name": "webAppCopy",
+            "count": "[length(variables('webAppConfig'))]"
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+        ]
+    },
+    {
+        "name": "[concat(variables('webAppConfig')[copyIndex()]['name'], '/', 'appsettings')]",
+        "type": "Microsoft.Web/sites/config",
+        "apiVersion": "2016-08-01",
+        "tags": {
+            "displayName": "Application Settings"
+        },
+        "properties": "[union(variables('sharedAppSettings'), variables('webAppConfig')[copyIndex()]['specificAppSettings'])]",
+        "copy": {
+            "name": "webConfigCopy",
+            "count": "[length(variables('webAppConfig'))]"
+        },
+        "dependsOn": [
+            "webAppCopy"
+        ]
+    },
+    {
+      "apiVersion": "2016-02-03",
+      "location": "[variables('location')]",
+      "name": "[variables('iotHubName')]",
+      "properties": {
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": "[variables('d2cMessageRetentionInDaysPeriod')]",
+            "partitionCount": "[variables('d2cPartitionCount')]"
+          },
+          "operationsMonitoringEvents": {
+            "retentionTimeInDays": "[variables('opMonRetentionTimeInDays')]",
+            "partitionCount": "[variables('opMonPartitionCount')]"
+          }
+        },
+        "routing": {
+          "endpoints": {
+            "eventHubs": [
+              {
+                "connectionString": "[listKeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('orderManagerEH'), variables('authorizationRules_iothubroutes')), '2017-04-01').primaryConnectionString]",
+                "resourceGroup": "[resourceGroup().name]",
+                "subscriptionId": "[subscription().subscriptionId]",
+                "name": "orderManager"
+              },
+              {
+                "connectionString": "[listKeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('fleetManagerEH'), variables('authorizationRules_iothubroutes')), '2017-04-01').primaryConnectionString]",
+                "resourceGroup": "[resourceGroup().name]",
+                "subscriptionId": "[subscription().subscriptionId]",
+                "name": "fleetManager"
+              }
+            ]
+          },
+          "routes": [
+            {
+              "name": "orderManager",
+              "source": "DeviceMessages",
+              "condition": "topic = 'jobsstatus'",
+              "endpointNames": [
+                "orderManager"
+              ],
+              "isEnabled": true
+            },
+            {
+              "name": "fleetManager",
+              "source": "DeviceMessages",
+              "condition": "topic = 'telemetry'",
+              "endpointNames": [
+                "fleetManager"
+              ],
+              "isEnabled": true
+            }
+          ],
+          "fallbackRoute": {
+            "name": "$fallback",
+            "source": "DeviceMessages",
+            "condition": "true",
+            "endpointNames": [
+              "events"
+            ],
+            "isEnabled": true
+          }
+        },
+        "cloudToDevice": {
+          "defaultTtlAsIso8601": "[variables('c2dMessagesTTLAsIso8601')]",
+          "maxDeliveryCount": "[variables('c2dMessagesMaxDeliveryCount')]",
+          "feedback": {
+            "maxDeliveryCount": "[variables('c2dFeedbackMessagesMaxDeliveryCount')]",
+            "ttlAsIso8601": "[variables('c2dFeebackMessagesTTLAsIso8601')]",
+            "lockDurationAsIso8601": "[variables('c2dFeedbackMessagesLockDurationAsIso8601')]"
+          }
+        },
+        "location": "[variables('location')]"
+      },
+      "sku": {
+        "name": "[variables('iotHubSkuName')]",
+        "capacity": "[variables('iotHubCapacityUnits')]"
+      },
+      "type": "Microsoft.Devices/IotHubs"
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
+      "name": "[concat(variables('eventHubNamespaceName'),'/',variables('defaultSASKeyName'))]",
+      "apiVersion": "2017-04-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules",
+      "name": "[concat(variables('eventHubNamespaceName'), '/', variables('orderManagerEH'), '/', variables('authorizationRules_iothubroutes'))]",
+      "apiVersion": "2017-04-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "rights": [
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubNamespaceName'), variables('orderManagerEH'))]"
+      ]
+    },
+    {
+        "type": "Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules",
+        "name": "[concat(variables('eventHubNamespaceName'), '/', variables('orderManagerEH'), '/', variables('authorizationRules_listener'))]",
+        "apiVersion": "2017-04-01",
+        "location": "[variables('location')]",
+        "properties": {
+          "rights": [
+            "Listen"
+          ]
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubNamespaceName'), variables('orderManagerEH'))]"
+        ]
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules",
+      "name": "[concat(variables('eventHubNamespaceName'), '/',  variables('fleetManagerEH'), '/', variables('authorizationRules_iothubroutes'))]",
+      "apiVersion": "2017-04-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "rights": [
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubNamespaceName'), variables('fleetManagerEH'))]"
+      ]
+    },
+    {
+        "type": "Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules",
+        "name": "[concat(variables('eventHubNamespaceName'), '/',  variables('fleetManagerEH'), '/', variables('authorizationRules_listener'))]",
+        "apiVersion": "2017-04-01",
+        "location": "[variables('location')]",
+        "properties": {
+          "rights": [
+            "Listen"
+          ]
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubNamespaceName'), variables('fleetManagerEH'))]"
+        ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-12-01",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[variables('storageAccountType')]"
+      },
+      "kind": "Storage",
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[variables('blobEncryptionEnabled')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-04-08",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "name": "[variables('databaseAccountName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "name": "[variables('databaseAccountName')]",
+        "databaseAccountOfferType": "[variables('offerType')]",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "[variables('consistencyLevel')]"
+        },
+        "locations": [
+          {
+            "locationName": "[variables('location')]",
+            "failoverPriority": 0
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "name": "[variables('eventHubNamespaceName')]",
+      "type": "Microsoft.EventHub/Namespaces",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[variables('eventhubSku')]",
+        "tier": "[variables('eventhubSku')]",
+        "capacity": "[variables('skuCapacity')]"
+      },
+      "tags": {
+      },
+      "properties": {},
+      "resources": [
+        {
+          "apiVersion": "2017-04-01",
+          "name": "[variables('orderManagerEH')]",
+          "type": "EventHubs",
+          "dependsOn": [
+            "[concat('Microsoft.EventHub/namespaces/', variables('eventHubNamespaceName'))]"
+          ],
+          "properties": {},
+          "resources": [
+            {
+              "apiVersion": "2017-04-01",
+              "name": "[variables('orderManagerEHCG')]",
+              "type": "ConsumerGroups",
+              "dependsOn": [
+                "[variables('orderManagerEH')]"
+              ],
+              "properties": {
+                "userMetadata": "User Metadata goes here"
+              }
+            }
+          ]
+        },
+        {
+          "apiVersion": "2017-04-01",
+          "name": "[variables('fleetManagerEH')]",
+          "type": "EventHubs",
+          "dependsOn": [
+            "[concat('Microsoft.EventHub/namespaces/', variables('eventHubNamespaceName'))]"
+          ],
+          "properties": {},
+          "resources": [
+            {
+              "apiVersion": "2017-04-01",
+              "name": "[variables('fleetManagerEHCG')]",
+              "type": "ConsumerGroups",
+              "dependsOn": [
+                "[variables('fleetManagerEH')]"
+              ],
+              "properties": {
+                "userMetadata": "User Metadata goes here"
+              }
+            }
+          ]
+        }
+        ]
+      },
+      {
+        "name": "[variables('acrName')]",
+        "type": "Microsoft.ContainerRegistry/registries",
+        "apiVersion": "2017-10-01",
+        "location": "[variables('location')]",
+        "comments": "Container registry for storing docker images",
+        "tags": {
+          "displayName": "Container Registry",
+          "container.registry": "[variables('acrName')]"
+        },
+        "sku": {
+            "name": "[variables('acrSku')]"
+        },
+        "properties": {
+          "adminUserEnabled": "[variables('acrAdminUserEnabled')]"
+        }
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('iotHubServiceConnectionStringSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[concat('HostName=',reference(resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))).hostName, ';SharedAccessKeyName=service;SharedAccessKey=',listKeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys', variables('iotHubName'), 'service'), '2016-02-03').primaryKey)]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('iotHubRegistryConnectionStringSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[concat('HostName=',reference(resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))).hostName, ';SharedAccessKeyName=registryReadWrite;SharedAccessKey=',listKeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys', variables('iotHubName'), 'registryReadWrite'), '2016-02-03').primaryKey)]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('cosmosDbEndpointUriSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('databaseAccountName')), '2015-04-08').documentEndpoint]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('databaseAccountName'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('cosmosDbPrimaryKeySecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('databaseAccountName')), '2015-04-08').primaryMasterKey]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('databaseAccountName'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('orderManagerEHConnectionStringSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[listKeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('orderManagerEH'), variables('authorizationRules_listener')), '2017-04-01').primaryConnectionString]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('orderManagerEH'), variables('authorizationRules_listener'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('fleetManagerEHConnectionStringSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+          "value": "[listKeys(resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('fleetManagerEH'), variables('authorizationRules_listener')), '2017-04-01').primaryConnectionString]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules',variables('eventHubNamespaceName'), variables('fleetManagerEH'), variables('authorizationRules_listener'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(variables('keyVaultName'), '/', variables('azureStorageSecretName'))]",
+        "apiVersion": "2015-06-01",
+        "properties": {
+            "value": "[Concat('DefaultEndpointsProtocol=https;AccountName=',variables('StorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        ]
+      }
+    ],
+    "outputs": {
+    }
+}

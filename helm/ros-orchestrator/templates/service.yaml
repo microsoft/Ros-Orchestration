@@ -1,0 +1,32 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+{{ $Values := .Values }}
+---
+{{ range $i, $e := until (int .Values.robotCount) | default 1 }}
+apiVersion: v1
+kind: Service
+metadata: 
+  name: {{ $Values.simulatorTargetPrefix }}{{ $i }}
+spec: 
+  ports: 
+    - port: {{ add $Values.portBase $i }}
+      protocol: "{{ $Values.nimbroProtocol | upper }}"
+  selector: 
+    name: simulator
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: {{ $Values.robotTargetPrefix }}{{ $i }}
+spec:
+  ports: 
+    - port: {{ int $Values.portBase }}
+      protocol: "{{ $Values.nimbroProtocol | upper }}"
+  selector: 
+    name: robot-{{ $i }}
+  type: ClusterIP
+---
+{{ end }}
+

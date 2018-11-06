@@ -1,0 +1,37 @@
+name: OrderManager-CI
+
+queue: 'Hosted Linux Preview'
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - RobotOrchestrator/*
+    - RobotOrchestrator.OrderManager/*
+
+variables:
+  buildConfiguration: 'Release'
+  projectPath: 'RobotOrchestrator.OrderManager/RobotOrchestrator.OrderManager.csproj'
+  testPath: 'RobotOrchestrator.OrderManager.Tests/RobotOrchestrator.OrderManager.Tests.csproj'
+
+steps:
+- script: |
+    dotnet build --configuration $(buildConfiguration) $(projectPath)
+    dotnet test --configuration $(buildConfiguration) --logger trx $(testPath)
+  displayName: Build and Test Dotnet Project
+- task: PublishTestResults@2
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+  displayName: Publish Test Results
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: False
+    projects: $(projectPath)
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifacts
