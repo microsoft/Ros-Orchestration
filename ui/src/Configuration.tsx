@@ -13,10 +13,10 @@ class Configuration
     public static mapWidthInPixels : string = "600";
     public static mapHeightInPixels : string = "529";
 
-    public static marginsTop : string = "100";
-    public static marginsRight : string = "20";
-    public static marginsBottom : string = "200";
-    public static marginsLeft : string = "20";
+    public static marginsTop : string = "40";
+    public static marginsRight : string = "25";
+    public static marginsBottom : string = "30";
+    public static marginsLeft : string = "25";
 
     public static mapWidthInMeters : string = "63.9000";
     public static mapHeightInMeters : string = "56.3000";

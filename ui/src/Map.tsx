@@ -32,7 +32,7 @@ class Map extends React.Component<any, any> {
     public render() {
         return (
             <div id="map">
-                <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref} />
+                <svg ref={(ref: SVGSVGElement) => this.ref = ref} />
             </div>
         );
     }
@@ -243,7 +243,7 @@ class Map extends React.Component<any, any> {
 
     public drawCursorText(gridDimensions: any, svg: Selection<d3.BaseType, {}, null, undefined>, coords: number[]) {
 
-        const xOffset = gridDimensions.width - 80;
+        const xOffset = gridDimensions.width - 120;
         const yOffset = gridDimensions.height + 30;
 
         let textbox = svg.selectAll("g.cursortextbox")

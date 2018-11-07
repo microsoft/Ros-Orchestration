@@ -61,12 +61,12 @@ class RobotView extends React.Component <any, any>{
 
     public render() {
         return (
-            <Grid >
+            <Grid id={"wrapper"}>
                 <Row>
-                    <Col xs={9} md={9}>
+                    <Col xs={12} md={9} id={"map-wrapper"}>
                         <Map robots={this.state.robots} activeRobot={this.state.activeRobot}/>
                     </Col>
-                    <Col xs={3} md={3}>
+                    <Col xs={12} md={3}>
                         <RobotInfoPanel robots={this.state.robots} onSelect={this.onActiveRobot}/>
                     </Col>
                 </Row>

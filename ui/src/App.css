@@ -1,30 +1,21 @@
 .App {
   text-align: center;
+  font-weight: 300;
+  font-family: "Work Sans";
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+body {
+    background-color: #30336b;
 }
 
-.App-header {
-  background-color: rgba(30, 73, 120, 0.831);
-  height: 100px;
-  padding: 20px;
-  color: white;
+#brand {
+    color: white;
+    font-size: 1em;
 }
 
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.nav-link {
+    color: white;
+    font-size: 1em;
 }
 
 .line {
@@ -44,7 +35,12 @@
 }
 
 #accordion {
-    margin-top: 100px;
+    margin-top: 40px;
+}
+
+#map-wrapper {
+    background-color: whitesmoke;
+    box-shadow: 0 0 6px 2px rgba(0,0,0,.1);
 }
 
 #map {
@@ -78,7 +74,7 @@
 }
 
 .robotLabel {
-  font-weight: 400;
-  font-family: "Work Sans";
-  font-size: 10px;
+    font-weight: 300;
+    font-family: "Work Sans";
+    font-size: 10px;
 }
