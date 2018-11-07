@@ -35,7 +35,7 @@ namespace RobotOrchestrator.OrderManager
             }
             else
             {
-                orders = await cosmosdbClient.GetItemsAsync(o => o.Status == status, n: numOrders);
+                orders = await cosmosdbClient.GetItemsAsync(o => o.Status == status, o => o.CreatedDateTime, numOrders);
             }
 
             return orders;
