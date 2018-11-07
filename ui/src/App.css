@@ -1,31 +1,42 @@
 .App {
   text-align: center;
+  font-weight: 300;
+  font-family: "Work Sans";
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+#brand {
+    color: white;
+    font-size: 1em;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.navbar-nav span[role=button] {
+    display: inline-block;
+    line-height: 20px;
 }
 
-.App-title {
-  font-size: 1.5em;
+.nav a {
+    color: white !important;
+    font-size: 1em;
+    float: left;
+    display: block;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
 }
 
-.App-intro {
-  font-size: large;
+.nav a:hover {
+    border-bottom: 3px solid #c7ecee;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.nav a.active {
+    border-bottom: 3px solid #c7ecee;
 }
+
+body {
+    background-color: #30336b;
+}
+
 
 .line {
     fill: none;
@@ -43,8 +54,47 @@
     stroke-width: 0;
 }
 
+#wrapper {
+    padding-bottom: 5%;
+}
+
+#accordion {
+    margin-top: 40px;
+}
+
+#map-wrapper {
+    background-color: whitesmoke;
+    box-shadow: 0 0 6px 2px rgba(0,0,0,.1);
+}
+
+#orders-wrapper {
+    background-color: whitesmoke;
+    box-shadow: 0 0 6px 2px rgba(0,0,0,.1);
+    padding-top: 1%;
+    padding-bottom: 5%;
+}
+
+#refresh-wrapper {
+    padding-top: .5%;
+    padding-bottom: .5%;
+    display: inline-block;
+}
+
 #map {
     padding: 100px;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.svg-content {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .legend {
@@ -60,8 +110,8 @@
     font-size: 12px;
 }
 
-.robotLabels {
-  font-weight: 300;
-  font-family: "Work Sans";
-  font-size: 10px;
+.robotLabel {
+    font-weight: 300;
+    font-family: "Work Sans";
+    font-size: 10px;
 }

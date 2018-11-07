@@ -1,150 +1,131 @@
 import * as d3 from 'd3';
 import { AxisDomain, AxisScale, Selection } from 'd3';
 import * as React from 'react';
-import RobotStatus from './RobotStatus'
+import Configuration from './Configuration';
+import Robot from './Robot';
+import RobotStatus from './RobotStatus';
 
-class Map extends React.Component <any, any> {
+class Map extends React.Component<any, any> {
 
-    private ref : SVGSVGElement;
+    private ref: SVGSVGElement;
 
-    private svg : Selection<d3.BaseType, {}, null, undefined>;
+    private svg: Selection<d3.BaseType, {}, null, undefined>;
 
-    // Map dimensions must match aspect ratio of map image
-    private readonly mapDimensions = { width : 600, height: 529};
+    private readonly mapDimensions = { 
+        height: +Configuration.mapHeightInPixels,
+        width: +Configuration.mapWidthInPixels 
+    };
 
-    public async componentDidMount() {
-        const margins = { top: 20, right: 20, bottom: 200, left: 100 }
-
-        const svgDimensions = this.getSvgDimensions(this.mapDimensions.width, this.mapDimensions.height, margins)
-        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
-
-        const ref = d3.select(this.ref)
-        
-        const svg = ref
-            .attr("width", svgDimensions.width)
-            .attr("height", svgDimensions.height)
-            .append("g")
-            .attr("transform",
-                "translate(" + margins.left + "," + margins.top + ")");
-
-        this.svg = svg;
-        const drawCursorText = this.drawCursorText;
-        const cursorTextX = this.mapDimensions.width - 80;
-        const cursorTextY = this.mapDimensions.height + 30;
-
-        const xRange = d3.scaleLinear().range([0, gridDimensions.width]);
-        const yRange = d3.scaleLinear().range([gridDimensions.height, 0]);
-        xRange.domain([0, 63.9000]);
-        yRange.domain([0, 56.3000]);
-
-        this.drawCursorText(svg,cursorTextX,cursorTextY,[0.0,0.0]);
-
-        // Draw map image
-        this.svg.append("svg:image")
-            .attr("xlink:href", "/map-simple.png")
-            .style("opacity", .5)
-            .attr("height", gridDimensions.height)
-            .attr("width", gridDimensions.width)
-            .on('mousemove', () => {
-                const coords = d3.mouse(d3.event.currentTarget);
-                coords[0] = xRange.invert(coords[0]);
-                coords[1] = yRange.invert(coords[1]);
-                drawCursorText(svg,cursorTextX,cursorTextY,coords);
-            })
-            .on('mouseout', () => {
-                drawCursorText(svg,cursorTextX,cursorTextY,[0.0,0.0]);
-            });
-            
-        this.drawLegend(0, this.mapDimensions.height + 30);
+    private readonly margins = {
+        bottom: +Configuration.marginsBottom,
+        left: +Configuration.marginsLeft,
+        right: +Configuration.marginsRight,
+        top: +Configuration.marginsTop
     }
 
-    public async componentDidUpdate() {
-        console.log("Called component did update.")
+    private readonly positionUpdateIntervalInMs = 300;
 
-        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
-        const xRange = d3.scaleLinear().range([0, gridDimensions.width]);
-        const yRange = d3.scaleLinear().range([gridDimensions.height, 0]);
-
-        const stateArray = this.getFakeStateArray();
-        const robotStates = this.getRobotStates(stateArray);
-        this.drawMap(xRange, yRange, gridDimensions, this.svg, robotStates);
-        this.drawRobotsOnMap(xRange, yRange, this.svg, robotStates);
+    constructor(props: any, context: any) {
+        super(props, context);
     }
 
     public render() {
         return (
             <div id="map">
-                <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref} />
+                <svg ref={(ref: SVGSVGElement) => this.ref = ref} />
             </div>
         );
     }
 
-    // TODO: Delete if using real data
-    public getRandomOffset() {
-        const offset = 0.5;
-        return (Math.random() * 2 * offset) - offset;
+    public async componentDidMount() {
+        const svgDimensions = this.getSvgDimensions(this.mapDimensions.width, this.mapDimensions.height, this.margins)
+        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
+
+        const xRange = this.getXRange(gridDimensions);
+        const yRange = this.getYRange(gridDimensions);
+
+        this.svg = this.createSvgElement(svgDimensions.width, svgDimensions.height);
+        this.drawMapImage(xRange, yRange, gridDimensions, this.svg, this.drawCursorText);
+        this.drawLegend(0, this.mapDimensions.height + 30);
+        this.drawCursorText(gridDimensions, this.svg, [0,0]);
+
+        const robots = this.getRobots();
+        this.drawMap(xRange, yRange, gridDimensions, this.svg, robots);
+        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
     }
 
-    // TODO: Delete if using real data
-    public getFakeStateArray() {
-        const stateArray = [
-        [{"id":"09/30/2018 11:21:20","createdDateTime":"2018-09-30T11:21:20.288738","position":{"x":41.9773764723991,"y":47.502031711303552},"status":"Busy","orderId":"51e9eb09-e87f-48b3-bc32-7834857cbbc0","robotId":"aksrobot0"}],
-        [{"id":"09/30/2018 11:21:20","createdDateTime":"2018-09-30T11:21:20.615891","position":{"x":38.448305146354556,"y":31.359546944589617},"status":"Busy","orderId":"716eedbd-9243-4fd5-adbd-698ae1c8243a","robotId":"aksrobot1"}],
-        [{"id":"09/30/2018 11:21:19","createdDateTime":"2018-09-30T11:21:19.852447","position":{"x":36.9873,"y":24.868},"status":"Idle","orderId":"","robotId":"aksrobot2"}],
-        [{"id":"09/30/2018 11:21:20","createdDateTime":"2018-09-30T11:21:20.078209","position":{"x":50.5029,"y":23.5177},"status":"Idle","orderId":"","robotId":"aksrobot3"}],
-        [{"id":"09/30/2018 11:21:18","createdDateTime":"2018-09-30T11:21:18.736736","position":{"x":38.1535,"y":48.0746},"status":"Idle","orderId":"","robotId":"aksrobot4"}],
-        [{"id":"09/30/2018 11:21:18","createdDateTime":"2018-09-30T11:21:18.708612","position":{"x":9.11684,"y":24.4549},"status":"Idle","orderId":"","robotId":"aksrobot5"}],
-        [{"id":"09/30/2018 11:21:20","createdDateTime":"2018-09-30T11:21:20.183019","position":{"x":40.6739,"y":26.8794},"status":"Idle","orderId":"","robotId":"aksrobot6"}],
-        [{"id":"09/30/2018 11:21:19","createdDateTime":"2018-09-30T11:21:19.245554","position":{"x":45.1197,"y":42.3837},"status":"Idle","orderId":"","robotId":"aksrobot7"}],
-        [{"id":"09/30/2018 11:21:20","createdDateTime":"2018-09-30T11:21:20.108014","position":{"x":28.8429,"y":42.2006},"status":"Idle","orderId":"","robotId":"aksrobot8"}],
-        [{"id":"09/30/2018 11:21:18","createdDateTime":"2018-09-30T11:21:18.604788","position":{"x":55.9058,"y":13.4081},"status":"Idle","orderId":"","robotId":"aksrobot9"}]
-        ];
-        return stateArray;
+    public async componentDidUpdate() {
+        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
+
+        const xRange = this.getXRange(gridDimensions);
+        const yRange = this.getYRange(gridDimensions);
+
+        const robots = this.getRobots();
+        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
     }
 
-    public getRobotStates(stateArray : any) {
-        return stateArray.map((data : any) => { 
-            return {
-                robotId : data[0].robotId,
-                status : data[0].status,
-                x : data[0].position.x,
-                y : data[0].position.y
-            }
-        }); 
-    }
-
-    public getSvgDimensions(mapWidth : number, mapHeight : number, margins : any) {
-        const svgDimensions = { 
+    public getSvgDimensions(mapWidth: number, mapHeight: number, margins: any) {
+        const svgDimensions = {
             height: mapHeight + margins.top + margins.bottom,
             width: mapWidth + margins.left + margins.right
         };
         return svgDimensions;
     }
 
-    public getGridDimensions(mapWidth : number, mapHeight : number) {
-        const gridDimensions = { 
+    public getGridDimensions(mapWidth: number, mapHeight: number) {
+        const gridDimensions = {
             height: mapHeight,
             width: mapWidth
         };
         return gridDimensions;
     }
 
-    public makeGridlinesX(range : AxisScale<AxisDomain>) {
+    public createSvgElement(svgWidth: number, svgHeight: number) {
+        const ref = d3.select(this.ref)
+        .classed("svg-content", true);
+
+        const svg = ref
+            .attr("width",'100%')
+            .attr("height", '100%')
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
+            .append("g")
+            .attr("transform",
+                "translate(" + this.margins.left + "," + this.margins.top + ")");
+
+        return svg;
+    }
+
+    public drawMapImage(xRange: any, yRange: any, gridDimensions: any, svg: any, drawCursorText: any) {
+        
+        // Draw map image
+        this.svg.append("svg:image")
+        .attr("xlink:href", "/map-simple.png")
+        .style("opacity", .5)
+        .attr("height", gridDimensions.height)
+        .attr("width", gridDimensions.width)
+        .on('mousemove', () => {
+            const coords = d3.mouse(d3.event.currentTarget);
+            coords[0] = xRange.invert(coords[0]);
+            coords[1] = yRange.invert(coords[1]);
+            drawCursorText(gridDimensions, svg, coords);
+        })
+        .on('mouseout', () => {
+            drawCursorText(gridDimensions, svg, [0.0, 0.0]);
+        });
+    }
+
+    public makeGridlinesX(range: AxisScale<AxisDomain>) {
         return d3.axisBottom(range)
-                .ticks(10)
+            .ticks(10)
     }
 
-    public makeGridlinesY(range : AxisScale<AxisDomain>) {
+    public makeGridlinesY(range: AxisScale<AxisDomain>) {
         return d3.axisLeft(range)
-                .ticks(10)
+            .ticks(10)
     }
 
-    public drawMap(xRange : any, yRange : any, gridDimensions : any, svg : any, robotStates : any) {
-        // Scale the range of the data
-        // xRange.domain([0, d3.max(robotStates, (d : any) => d.x)]);
-        // yRange.domain([0, d3.max(robotStates, (d : any) => d.y)]);
-        xRange.domain([0, 63.9000]);
-        yRange.domain([0, 56.3000]);
+    public drawMap(xRange: any, yRange: any, gridDimensions: any, svg: any, robotStates: any) {
 
         // add the X gridlines
         svg.append("g")
@@ -176,73 +157,105 @@ class Map extends React.Component <any, any> {
             .call(d3.axisLeft(yRange));
     }
 
-    public drawRobotsOnMap(xRange : any, yRange : any, svg : Selection<d3.BaseType, {}, null, undefined>, robotStates : any) {
-        const radius = 3.5;
+    public drawRobotsOnMap(xRange: any, yRange: any, svg: any, robots: Robot[]) {
+        
+        const robotElements = svg.selectAll("g.robot")
+            .data(robots, (d: Robot) => {
+                return d.id
+            });
 
-        const robotElements = svg.selectAll("circle.robot")
-                .data(robotStates, (d: any) => d.robotId)
-                .enter() // for each robot in robotStates
+        // existing robot elements
+        const robotCircles = robotElements.selectAll("circle.robotCircle");
+        robotCircles.transition()
+            .duration(this.positionUpdateIntervalInMs) 
+            .attr("class", "robotCircle")
+            .attr("pointer-events", "none")
+            .attr("r", (d: Robot) => this.getRobotSize(d.id))
+            .attr("cx", (d: Robot) => xRange(d.telemetry.position.x))
+            .attr("cy", (d: Robot) => yRange(d.telemetry.position.y))
+            .style("fill", (d: Robot) => this.getRobotColor(d.telemetry.status.toString()));
 
-        robotElements.append("circle")
-                .attr("class", "robot")
-                .attr("r", radius)
-                .attr("pointer-events", "none")
-                .attr("cx", (d : any) => xRange(d.x))
-                .attr("cy", (d : any) => yRange(d.y))
-                .style("fill", (d : any) => this.getStatusColor(d.status));
+        const robotLabels = robotElements.selectAll("text.robotLabel");
+        robotLabels.text((d: Robot) => d.id)
+            .transition()
+            .duration(this.positionUpdateIntervalInMs)
+            .attr("pointer-events", "none")
+            .attr("class", "robotLabel")
+            .attr("x", (d: Robot) => xRange(d.telemetry.position.x) + (this.getRobotSize(d.id) / 2))
+            .attr("y", (d: Robot) => yRange(d.telemetry.position.y) - this.getRobotSize(d.id));
 
-        robotElements.append("text")
-                .text((d) => d.robotId )
-                .attr("x", (d : any) => xRange(d.x) + (radius / 2))
-                .attr("y", (d : any) => yRange(d.y) - radius)
-                .attr("pointer-events", "none")
-                .attr("class", "robotLabels")
+        // new robot elements
+        const robotEntry = robotElements
+            .enter()
+            .append("g")
+            .attr("class", "robot");
+        
+        robotEntry.append("circle")
+            .attr("pointer-events", "none")
+            .attr("class", "robotCircle")
+            .attr("r", (d: Robot) => this.getRobotSize(d.id))
+            .attr("cx", (d: Robot) => xRange(d.telemetry.position.x))
+            .attr("cy", (d: Robot) => yRange(d.telemetry.position.y))
+            .style("fill", (d: Robot) => this.getRobotColor(d.telemetry.status.toString()))
+
+        robotEntry.append("text")
+            .text((d: Robot) => d.id)
+            .attr("pointer-events", "none")
+            .attr("class", "robotLabel")
+            .attr("x", (d: Robot) => xRange(d.telemetry.position.x) + (this.getRobotSize(d.id) / 2))
+            .attr("y", (d: Robot) => yRange(d.telemetry.position.y) - this.getRobotSize(d.id))
+
+        // remove old robot elements
+        robotElements.exit().remove();
 
         return robotElements;
     }
 
     public drawLegend(xOffset: number, yOffset: number) {
 
-        const robotStatuses : string[] = Object.keys(RobotStatus).map( (key : string) => {
+        const robotStatuses: string[] = Object.keys(RobotStatus).map((key: string) => {
             return RobotStatus[key]
         }).filter(value => typeof value === 'string') as string[];
-        
+
         const legend = this.svg.selectAll("g.legend")
             .data(robotStatuses)
             .enter().append("svg:g")
             .attr("class", "legend")
-            .attr("transform", (d : string, i: number) => { 
-                return "translate(" + xOffset + "," + (i * 20 + yOffset) + ")"; 
+            .attr("transform", (d: string, i: number) => {
+                return "translate(" + xOffset + "," + (i * 20 + yOffset) + ")";
             });
 
         legend.append("svg:circle")
             .attr("class", "legend")
             .attr("r", 3.5)
-            .style("fill", (status : any) => this.getStatusColor(status));
+            .style("fill", (status: any) => this.getRobotColor(status));
 
         legend.append("svg:text")
             .attr("class", "legend")
             .attr("x", 12)
             .attr("dy", ".31em")
-            .text((status : string) => { 
+            .text((status: string) => {
                 return status;
             });
 
         return legend;
     }
 
-    public drawCursorText(svg : Selection<d3.BaseType, {}, null, undefined>, xOffset: number, yOffset: number, coords : number[]) {
-                
-        let textbox = svg.selectAll("g.textbox")
+    public drawCursorText(gridDimensions: any, svg: Selection<d3.BaseType, {}, null, undefined>, coords: number[]) {
+
+        const xOffset = gridDimensions.width - 120;
+        const yOffset = gridDimensions.height + 30;
+
+        let textbox = svg.selectAll("g.cursortextbox")
             .data(["CursorTextbox"]);
-            
+
         textbox = textbox.enter()
             .append("svg:g")
-            .attr("class", "textbox")
-            .attr("transform", (d : string) => { 
-                return "translate(" + xOffset + ","  + yOffset + ")"; 
+            .attr("class", "cursortextbox")
+            .attr("transform", (d: string) => {
+                return "translate(" + xOffset + "," + yOffset + ")";
             }).merge(textbox);
-        
+
         const text = textbox.selectAll("text.cursortext")
             .data([coords]);
 
@@ -259,44 +272,62 @@ class Map extends React.Component <any, any> {
         return text;
     }
 
-    public getStatusColor(status : string) {
-        if (status === "Idle") {
-            return "green";
-        } else if(status === "Onboarding") {
-            return "orange";
-        } else if (status === "Busy") {
-            return "red";
-        } else {
-            return "grey";
+    private getRobots() {
+        let robots = [];
+
+        if (this.props.robots !== undefined) {
+            robots = this.props.robots;
         }
+
+        return robots;
     }
 
-    public animateDotMovement(xRange : any, yRange : any, circles : any, positionUpdateIntervalInMs : number) {
-
-        circles.transition()
-            .duration(positionUpdateIntervalInMs) 
-            .attr("cx", (d : any) => xRange(d.x))
-            .attr("cy", (d : any) => yRange(d.y))
-            .style("fill", (d : any) => this.getStatusColor(d.status));
-        
-    }
-
-    public updateRobotStates(robotStates : any) {
-        /* TODO: Intent here is to fetch updated position data and update robotStates.
-        This fakes it by just randomly updating the position of any active robot */
-
-        robotStates.forEach((d : any) => {
-            if(d.status === 2) { 
-                // Only busy robots move
-                d.x += this.getRandomOffset();
-                d.y += this.getRandomOffset();
+    private getRobotColor(robotStatus: string) {
+        switch (robotStatus) {
+            case RobotStatus[RobotStatus.Onboarding]: {
+                return "orange";
             }
-        });
+            case RobotStatus[RobotStatus.Idle]: {
+                return "green";
+            }
+            case RobotStatus[RobotStatus.Busy]: {
+                return "red";
+            }
+            case RobotStatus[RobotStatus.Failed]: {
+                return "gray";
+            }
+        }
+
+        return "black";
     }
 
-    public onTimerExpired(xRange : any, yRange : any, robotStates : any, circles : any, positionUpdateIntervalInMs : number) {
-        this.updateRobotStates(robotStates);
-        this.animateDotMovement(xRange, yRange, circles, positionUpdateIntervalInMs);
+    private getRobotSize(robotId: string) {
+
+        const regularDotSize: number = 5;
+        const currentDotSize: number = 10;
+
+        let dotSize: number;
+
+        if (robotId === this.props.activeRobot) {
+            dotSize = currentDotSize;
+        }
+        else {
+            dotSize = regularDotSize;
+        }
+
+        return dotSize;
+    }
+
+    private getXRange(gridDimensions: any) {
+        const xRange = d3.scaleLinear().range([0, gridDimensions.width]);
+        xRange.domain([0, +Configuration.mapWidthInMeters]);
+        return xRange;
+    }
+
+    private getYRange(gridDimensions: any) {
+        const yRange = d3.scaleLinear().range([gridDimensions.height, 0]);
+        yRange.domain([0, +Configuration.mapHeightInMeters]);
+        return yRange;
     }
 }
 

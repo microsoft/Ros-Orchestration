@@ -1,4 +1,4 @@
 {
-    "REACT_APP_FLEETMANAGER_URL": "robot-fleetmanager-dev.azurewebsites.net",
-    "REACT_APP_ORDERMANAGER_URL": "robot-ordermanager-dev.azurewebsites.net"
+    "REACT_APP_FLEETMANAGER_URL": "robot-fleetmanager-demo.azurewebsites.net",
+    "REACT_APP_ORDERMANAGER_URL": "robot-ordermanager-demo.azurewebsites.net"
 }
