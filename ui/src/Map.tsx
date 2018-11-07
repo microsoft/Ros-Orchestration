@@ -165,8 +165,10 @@ class Map extends React.Component<any, any> {
             });
 
         // existing robot elements
-        const robotCircles = robotElements.selectAll("circle.robotCircle");
-        robotCircles.transition()
+        const robotCircles = robotElements.select("circle.robotCircle");
+      
+        robotCircles
+            .transition()
             .duration(this.positionUpdateIntervalInMs) 
             .attr("class", "robotCircle")
             .attr("pointer-events", "none")
@@ -175,7 +177,7 @@ class Map extends React.Component<any, any> {
             .attr("cy", (d: Robot) => yRange(d.telemetry.position.y))
             .style("fill", (d: Robot) => this.getRobotColor(d.telemetry.status.toString()));
 
-        const robotLabels = robotElements.selectAll("text.robotLabel");
+        const robotLabels = robotElements.select("text.robotLabel");
         robotLabels.text((d: Robot) => d.id)
             .transition()
             .duration(this.positionUpdateIntervalInMs)
