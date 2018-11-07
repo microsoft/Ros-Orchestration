@@ -87,7 +87,7 @@ class OrderTable extends React.Component <any, any>{
         if(null != this.orders){
             for (const order of this.orders) {
                 rows.push({
-                    CreatedDateTime : JSON.stringify(order.createdDateTime), 
+                    CreatedDateTime : order.createdDateTime.toString(), 
                     EndPosition : this.formatPosition(order.endPosition),
                     Id: order.id.toString(),
                     Jobs : JSON.stringify(order.jobs),

@@ -13,10 +13,9 @@ class RobotInfoCollapse extends React.Component <any, any>{
                     <Panel.Title toggle={true}>{this.props.robot.id}</Panel.Title>
                 </Panel.Heading>
                 <Panel.Body collapsible={true}>
-                    <div> Telemetry id:  {this.props.robot.telemetry.id} </div>
-                    <div> Created time:  {this.props.robot.telemetry.createdDateTime} </div>
-                    <div> X:  {this.props.robot.telemetry.position.x} </div>
-                    <div> Y:  {this.props.robot.telemetry.position.y} </div>
+                    <div> Telemetry id:  {new Date(this.props.robot.telemetry.id).toISOString()} </div>
+                    <div> X:  {this.props.robot.telemetry.position.x.toFixed(3)} </div>
+                    <div> Y:  {this.props.robot.telemetry.position.y.toFixed(3)} </div>
                     <div> Status:  {this.props.robot.telemetry.status} </div>
                     <div> Order:  {this.props.robot.telemetry.orderId} </div>
                 </Panel.Body>
