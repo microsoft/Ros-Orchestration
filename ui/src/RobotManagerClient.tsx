@@ -23,8 +23,11 @@ export class FleetManagerClient
           .then(this.handleResponseOfRobots).catch(this.handleError);
     }
 
-    private handleResponseOfRobots = (response : AxiosResponse<any>) => {        
+    private handleResponseOfRobots = (response : AxiosResponse<any>) => {   
         this.responseRobots = response.data as Robot[];
+
+        // sort robots on id ascending.
+        this.responseRobots.sort((one : Robot, two : Robot) => (one.id < two.id ? -1 : 1));
     }
 
     private handleError = (error : AxiosError) => {
