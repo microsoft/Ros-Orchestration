@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 import * as React from 'react';
-import {Button, Glyphicon} from 'react-bootstrap';
+import {Button, Col, Glyphicon, Grid, Row} from 'react-bootstrap';
 import * as ReactDataGrid from 'react-data-grid';
 import EmptyRowsView from "./EmptyTable";
 import Order from './Order';
 import OrderManagerClient from "./OrderManagerClient";
+import Position2d from './Position2d';
 
 class OrderTable extends React.Component <any, any>{
     public state: any;
@@ -49,18 +50,28 @@ class OrderTable extends React.Component <any, any>{
 
     public render() {
         return (
-            <div>
-                <Button
-                    onClick={this.onclickAsync} bsStyle={"primary"}> 
-                    Orders  <Glyphicon glyph="refresh"/>
-                </Button>
-                <ReactDataGrid
-                    columns={this.columns}
-            rowGetter={this.rowGetter}
-            rowsCount={this.state.rows.length}
-            minHeight={500}
-            emptyRowsView = {EmptyRowsView} />
-        </div>);
+            <Grid id={"wrapper"}>
+                <Row id={"orders-wrapper"}>
+                    <Col xs={10} md={10} />
+                    <Col xs={2} md={2} id={"refresh-wrapper"}>
+                        <Button
+                        onClick={this.onclickAsync} bsStyle={"primary"}> 
+                        Orders  <Glyphicon glyph="refresh"/>
+                        </Button>
+                    </Col>
+                    <Col xs={12} md={12} id={"orders-table-wrapper"}>
+                        <div>
+                            <ReactDataGrid
+                                        columns={this.columns}
+                                rowGetter={this.rowGetter}
+                                rowsCount={this.state.rows.length}
+                                minHeight={500}
+                                emptyRowsView = {EmptyRowsView} />
+                        </div>
+                    </Col>
+                </Row>
+            </Grid>
+        );
     }
 
     private async getOrdersAsync(){
@@ -77,11 +88,11 @@ class OrderTable extends React.Component <any, any>{
             for (const order of this.orders) {
                 rows.push({
                     CreatedDateTime : JSON.stringify(order.createdDateTime), 
-                    EndPosition : JSON.stringify(order.endPosition),
+                    EndPosition : this.formatPosition(order.endPosition),
                     Id: order.id.toString(),
                     Jobs : JSON.stringify(order.jobs),
-                    Message : JSON.stringify(order.message),
-                    StartPosition :JSON.stringify(order.startPosition),
+                    Message : order.message,
+                    StartPosition : this.formatPosition(order.startPosition),
                     Status : order.status
                 });
             }
@@ -89,6 +100,10 @@ class OrderTable extends React.Component <any, any>{
 
         this.setState({rows})
     };
+
+    private formatPosition(position : Position2d) {
+        return `X: ${position.x.toFixed(3)}, Y: ${position.y.toFixed(3)}`
+    }
 }
 
 export default OrderTable;
