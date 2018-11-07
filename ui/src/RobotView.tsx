@@ -33,13 +33,12 @@ class RobotView extends React.Component <any, any>{
     }
 
     public componentDidMount() {
-        console.log("component mounting " + this.isCancelled)
+        this.getRobotsAsync();
         this.interval = setInterval(() => this.getRobotsAsync(), RobotView.refreshInMs);
     }
 
     public componentWillUnmount() {
         this.isCancelled = true;
-        console.log("component unmounting " + this.isCancelled)
         clearInterval(this.interval);
     }
 
