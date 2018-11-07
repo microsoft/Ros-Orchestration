@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import * as React from 'react';
 import {Button, Glyphicon} from 'react-bootstrap';
 import * as ReactDataGrid from 'react-data-grid';
