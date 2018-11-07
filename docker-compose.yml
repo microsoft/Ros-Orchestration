@@ -1,0 +1,83 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+version: '3'
+networks:
+  shared_network:
+    driver: bridge
+services:
+  simulator:
+    image: "simulator-orch"
+    build: 
+      context: ./Robot/
+      dockerfile: Dockerfile-simulator
+    environment: 
+      - ROS_MASTER_URI=http://localhost:11311
+      - ROBOT_PREFIX=hackbot
+      - ROBOT_TARGET_PREFIX=robot-nimbro-
+      - ROBOT_COUNT=2
+      - SIMULATOR_THREAD_COUNT=4
+      - VNC_PW=vncpassword
+    command: ["/bin/bash", "-c", "source devel/setup.bash && roslaunch argos_bridge simulation.launch
+          robot_count:=$${ROBOT_COUNT} simulator_thread_count:=$${SIMULATOR_THREAD_COUNT} 
+          port_base:=17000 robot_target_prefix:=$${ROBOT_TARGET_PREFIX} robot_prefix:=$${ROBOT_PREFIX}
+          argos_world_file:=construct.argos"]
+    ports:
+    - "17000-17005"
+    networks:
+      shared_network:
+        aliases:
+        - "simulator-nimbro-0"
+        - "simulator-nimbro-1"
+  robot-0:
+    image: "robot-orch"
+    build: 
+      context: ./Robot/
+      dockerfile: Dockerfile-robot
+    environment: 
+      - ROS_MASTER_URI=http://localhost:11311
+      - ROBOT_ID=hackbot0
+      - SIMULATOR_NIMBRO_TARGET=simulator-nimbro-0
+      - SIMULATOR_NIMBRO_PORT=17000
+      - VERBOSE="True"
+      - FLEET_MANAGER_URL=robot-fleetmanager-dev.azurewebsites.net
+      - FLEET_MANAGER_VERSION=1
+    command: ["/bin/bash", "-c", "source devel/setup.bash &&
+                roslaunch orchestrated_robot robot.launch
+                  fleetmanager_url:=$${FLEET_MANAGER_URL}
+                  robot_name:=$${ROBOT_ID}
+                  fleetmanager_version:=$${FLEET_MANAGER_VERSION}
+                  simulator_nimbro_target:=$${SIMULATOR_NIMBRO_TARGET} 
+                  simulator_nimbro_port:=$${SIMULATOR_NIMBRO_PORT}"]
+    ports:
+    - "17000"
+    networks:
+      shared_network:
+        aliases:
+        - "robot-nimbro-0"
+  robot-1:
+    image: "robot-orch"
+    build: 
+      context: ./Robot/
+      dockerfile: Dockerfile-robot
+    environment: 
+      - ROS_MASTER_URI=http://localhost:11311
+      - ROBOT_ID=hackbot1
+      - SIMULATOR_NIMBRO_TARGET=simulator-nimbro-1
+      - SIMULATOR_NIMBRO_PORT=17001
+      - VERBOSE="True"
+      - FLEET_MANAGER_URL=robot-fleetmanager-dev.azurewebsites.net
+      - FLEET_MANAGER_VERSION=1
+    command: ["/bin/bash", "-c", "source devel/setup.bash &&
+                roslaunch orchestrated_robot robot.launch
+                  fleetmanager_url:=$${FLEET_MANAGER_URL}
+                  robot_name:=$${ROBOT_ID}
+                  fleetmanager_version:=$${FLEET_MANAGER_VERSION}
+                  simulator_nimbro_target:=$${SIMULATOR_NIMBRO_TARGET} 
+                  simulator_nimbro_port:=$${SIMULATOR_NIMBRO_PORT}"]
+    ports:
+    - "17000"
+    networks:
+      shared_network:
+        aliases:
+        - "robot-nimbro-1"

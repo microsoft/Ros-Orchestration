@@ -1,0 +1,50 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+name: ReactApp-CI
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - ui/*
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    cd ui
+    npm install --verbose
+  displayName: 'npm install'
+
+- script: |
+    cd ui
+    npm run build --verbose
+  displayName: 'npm run build'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)/ui/build
+    contents: '**'
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+    cleanTargetFolder: true
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)/ui
+    contents: 'web.config'
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+    cleanTargetFolder: false
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'

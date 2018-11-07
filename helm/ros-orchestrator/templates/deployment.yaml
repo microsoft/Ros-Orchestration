@@ -1,0 +1,112 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+{{ $Values := .Values }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulator
+  labels:
+    name: simulator
+spec:
+  selector:
+      matchLabels:
+        name: simulator
+  template:
+    metadata: 
+      name: simulator
+      labels:
+        name: simulator
+    spec: 
+      nodeSelector:
+        dedicated: simulator
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "simulator"
+          effect: "NoSchedule"
+      imagePullSecrets:
+        - name:  "{{ .Values.registrySecret }}"
+      containers: 
+        - name: simulator
+          image: "{{ .Values.simulatorImage.repository }}:{{ .Values.simulatorImage.tag }}"
+          imagePullPolicy: {{ .Values.simulatorImage.pullPolicy }}
+          ports:
+            {{- range $i, $e := until (int .Values.robotCount) | default 1 }}
+            - containerPort:  {{ add $Values.portBase $i }}
+              protocol: "{{ $Values.nimbroProtocol | upper }}"
+            {{- end }}
+          env:
+            - name: ROS_MASTER_URI
+              value: http://localhost:11311
+            - name: ROBOT_PREFIX
+              value: "{{ .Values.robotPrefix }}"
+            - name: ROBOT_COUNT
+              value: "{{ .Values.robotCount }}"
+            - name: SIMULATOR_THREAD_COUNT
+              value: "{{ .Values.simulatorThreadCount }}"
+            - name: VNC_PW
+              value: "{{ .Values.vncPassword }}"
+          command: ["/bin/bash"]
+          args: ["-c", "source devel/setup.bash && roslaunch argos_bridge simulation.launch
+          robot_count:=${ROBOT_COUNT} simulator_thread_count:=${SIMULATOR_THREAD_COUNT} 
+          port_base:={{ .Values.portBase }} robot_target_prefix:={{ .Values.robotTargetPrefix }} robot_prefix:=${ROBOT_PREFIX}
+          protocol:={{ .Values.nimbroProtocol | lower }} simulator_callback_timeout:={{ .Values.simulationCallbackTimeout }}
+          argos_world_file:={{ .Values.argosLaunchFile }}"
+                ]
+---
+{{ range $i, $e := until (int .Values.robotCount) | default 1 }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: robot-{{ $i }}
+  labels:
+    name: robot-{{ $i }}
+spec:
+  selector:
+    matchLabels:
+      name: robot-{{ $i }}
+  template:
+    metadata: 
+      name: robot-{{ $i }}
+      labels:
+        name: robot-{{ $i }}
+    spec:
+      imagePullSecrets:
+        - name: "{{ $Values.registrySecret }}"
+      containers: 
+        - name: robot
+          image: "{{ $Values.robotImage.repository }}:{{ $Values.robotImage.tag }}"
+          imagePullPolicy: {{ $Values.robotImage.pullPolicy }}
+          ports:
+            - containerPort: {{ $Values.portBase }}
+              protocol: "{{ $Values.nimbroProtocol | upper }}"
+          env:
+            - name: ROS_MASTER_URI
+              value: http://localhost:11311
+            - name: ROBOT_ID
+              value: {{ $Values.robotPrefix }}{{ $i }}
+            - name: SIMULATOR_NIMBRO_TARGET
+              value: {{ $Values.simulatorTargetPrefix }}{{ $i }}
+            - name: SIMULATOR_NIMBRO_PORT
+              value: {{ add $Values.portBase $i | quote }}
+            - name: VERBOSE
+              value: "True"
+            - name: FLEET_MANAGER_URL
+              value: {{ $Values.fleetManagerUrl }}
+            - name: FLEET_MANAGER_VERSION
+              value: {{ $Values.fleetManagerVersion | quote }}
+          command: ["/bin/bash"]
+          args: ["-c", "source devel/setup.bash &&
+                roslaunch orchestrated_robot robot.launch
+                  simulator_nimbro_target:=${SIMULATOR_NIMBRO_TARGET} 
+                  simulator_nimbro_port:=${SIMULATOR_NIMBRO_PORT}
+                  robot_name:=${ROBOT_ID}
+                  fleetmanager_url:=${FLEET_MANAGER_URL}
+                  fleetmanager_version:=${FLEET_MANAGER_VERSION}
+                  protocol:={{ $Values.nimbroProtocol | lower }}"]
+          resources:
+{{ toYaml $Values.resources | indent 12 }}
+---
+{{ end }}

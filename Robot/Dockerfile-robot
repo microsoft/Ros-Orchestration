@@ -1,0 +1,25 @@
+FROM robotorchacrdev.azurecr.io/robot-base
+
+# Install pip and iot hub relay dependencies
+RUN apt-get update \
+    && apt-get install python-pip ros-kinetic-rosbridge-library -y \
+    && pip install azure-iothub-device-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Get ros relay
+RUN git clone https://github.com/xinyiou/ros_azure_iothub.git /root/catkin_ws/src/ros_azure_iothub \
+    && cd /root/catkin_ws/src/ros_azure_iothub \
+    && git checkout 1496b4bf462df3b57ba0b954ec1bba94caa7d2fa
+
+COPY src/argos_map /root/catkin_ws/src/argos_map
+COPY src/orchestrated_robot /root/catkin_ws/src/orchestrated_robot
+COPY src/orchestrator_msgs /root/catkin_ws/src/orchestrator_msgs
+RUN chmod +x /root/catkin_ws/src/orchestrated_robot/scripts/robot_controller.py
+RUN chmod +x /root/catkin_ws/src/orchestrated_robot/scripts/telemetry_controller.py
+
+RUN /bin/bash -c "source devel/setup.bash \
+    && catkin_make"
+
+# Useful for interactive bash, so that there is no need to set up workspace
+RUN echo "source /root/catkin_ws/devel/setup.bash" >> /root/.bashrc
+
