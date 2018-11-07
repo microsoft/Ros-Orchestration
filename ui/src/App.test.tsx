@@ -10,6 +10,6 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(<HashRouter>
     <App />
-</HashRouter>, div);
+  </HashRouter>, div);
   ReactDOM.unmountComponentAtNode(div);
 });
