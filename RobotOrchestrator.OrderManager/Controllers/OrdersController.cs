@@ -30,7 +30,6 @@ namespace RobotOrchestrator.OrderManager.Controllers
             try
             {
                 orders = await orderManager.GetOrdersAsync(status, numOrders);
-            
             }
             catch (Exception ex)
             {
