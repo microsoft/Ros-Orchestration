@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Nav, Navbar, NavItem } from 'react-bootstrap'
-import { Link, Route, Switch } from 'react-router-dom'; // import the react-router-dom components
+import { NavLink, Route, Switch } from 'react-router-dom'; // import the react-router-dom components
 import './App.css';
 import Configuration from './Configuration';
 import { Orders, Visualization} from './Pages'
@@ -49,11 +49,11 @@ class App extends React.Component<any, any>{
         </Navbar.Header>
         <Navbar.Collapse>
             <Nav>
-                <NavItem eventKey={1} href="#">
-                    <Link className="nav-link" to="/Visualization"><span>Visualization</span></Link>
+                <NavItem eventKey={1} componentClass='span'>
+                    <NavLink className="nav-link" to="/Visualization" replace={true} ><span>Visualization</span></NavLink>
                 </NavItem>
-                <NavItem eventKey={2} href="#">
-                    <Link className="nav-link" to="/Orders"><span>Orders</span></Link>
+                <NavItem eventKey={2} componentClass='span'>
+                    <NavLink className="nav-link" to="/Orders" replace={true} ><span>Orders</span></NavLink>
                 </NavItem>
             </Nav>
             <Nav pullRight={true}>

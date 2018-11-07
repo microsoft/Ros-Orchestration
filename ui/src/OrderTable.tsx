@@ -52,7 +52,6 @@ class OrderTable extends React.Component <any, any>{
                     <Col xs={10} md={10} />
                     <Col xs={2} md={2} id={"refresh-wrapper"}>
                         <Button
-                        pull-right={true}
                         onClick={this.onclickAsync} bsStyle={"primary"}> 
                         Orders  <Glyphicon glyph="refresh"/>
                         </Button>
