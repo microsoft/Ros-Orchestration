@@ -31,7 +31,6 @@ class OrderTable extends React.Component <any, any>{
             { key: 'StartPosition', name: 'StartPosition', resizable: true  },
             { key: 'EndPosition', name: 'EndPosition', resizable: true  },
             { key: 'Status', name: 'Status', resizable: true  },
-            { key: 'JobStatus', name: 'Jobs', resizable: true  }, 
             { key: 'CreatedDateTime', name: 'CreatedDateTime', resizable: true  }, 
             { key: 'Message', name: 'Message', resizable: true  }   
         ];
