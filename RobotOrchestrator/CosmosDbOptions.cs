@@ -1,4 +1,7 @@
-﻿namespace RobotOrchestrator
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+namespace RobotOrchestrator
 {
     /// <summary>
     /// Generic T is used to differentiate different options for the CosmosDbClient\<T> generic implementations.

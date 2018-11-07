@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import Position2d from './Position2d';
 import RobotStatus from './RobotStatus';
 

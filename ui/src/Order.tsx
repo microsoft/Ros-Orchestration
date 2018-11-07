@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import { Guid } from "guid-typescript";
 import Job from "./Job";
 import OrderStatus from "./OrderStatus";

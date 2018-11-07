@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 export default class SimpleCanvas {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;

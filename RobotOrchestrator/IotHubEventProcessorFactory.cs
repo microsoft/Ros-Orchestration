@@ -1,4 +1,7 @@
-﻿using Microsoft.Azure.EventHubs.Processor;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.Azure.EventHubs.Processor;
 
 namespace RobotOrchestrator
 {

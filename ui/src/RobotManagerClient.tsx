@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import Configuration from './Configuration';
 import Robot from './Robot';

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import * as React from 'react';
 import { PanelGroup }  from 'react-bootstrap';
 import Robot from './Robot';
