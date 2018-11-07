@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Nav, Navbar, NavItem } from 'react-bootstrap'
-import { NavLink, Route, Switch } from 'react-router-dom'; // import the react-router-dom components
+import { NavLink, Redirect, Route, Switch } from 'react-router-dom'; // import the react-router-dom components
 import './App.css';
 import Configuration from './Configuration';
-import { Orders, Visualization} from './Pages'
+import { Orders, Visualization } from './Pages'
 
 class App extends React.Component<any, any>{
 
@@ -68,12 +68,16 @@ class App extends React.Component<any, any>{
   private Main = () => (
     <main>
         <Switch>
-            <Route exact={true} path='/' component={Visualization} />
-            <Route exact={true} path='/Visualization' component={Visualization}/>
-            <Route exact={true} path='/Orders' component={Orders}/>
+            <Route exact={true} path='/' render={RedirectVisualization} />
+            <Route exact={true} path='/Visualization' render={Visualization} />
+            <Route exact={true} path='/Orders' render={Orders}/>
         </Switch>
     </main>
   );
+}
+
+const RedirectVisualization = () => {
+    return <Redirect to='/Visualization'/>
 }
 
 export default App;

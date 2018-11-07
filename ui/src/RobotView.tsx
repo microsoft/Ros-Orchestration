@@ -14,8 +14,12 @@ class RobotView extends React.Component <any, any>{
 
     private interval : NodeJS.Timer;
 
+    private isCancelled : boolean;
+
     constructor(props: any, context: any) {
         super(props, context);
+
+        this.isCancelled = false;
 
         this.robotManagerClient = new RobotManagerClient();
 
@@ -29,10 +33,13 @@ class RobotView extends React.Component <any, any>{
     }
 
     public componentDidMount() {
+        console.log("component mounting " + this.isCancelled)
         this.interval = setInterval(() => this.getRobotsAsync(), RobotView.refreshInMs);
     }
 
     public componentWillUnmount() {
+        this.isCancelled = true;
+        console.log("component unmounting " + this.isCancelled)
         clearInterval(this.interval);
     }
 
@@ -41,12 +48,11 @@ class RobotView extends React.Component <any, any>{
 
         const robotsInfo : Robot[] = this.robotManagerClient.responseRobots;
 
-        if(robotsInfo !== undefined){
+        if(robotsInfo !== undefined && this.isCancelled === false){
             this.setState({
                 robots : robotsInfo
             });
         }
-        
     }
 
     public async onRefreshAsync() {
