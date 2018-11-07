@@ -4,19 +4,20 @@
   font-family: "Work Sans";
 }
 
-body {
-    background-color: #30336b;
-}
-
 #brand {
     color: white;
     font-size: 1em;
 }
 
 .nav-link {
-    color: white;
+    color: white !important;
     font-size: 1em;
 }
+
+body {
+    background-color: #30336b;
+}
+
 
 .line {
     fill: none;
@@ -34,6 +35,10 @@ body {
     stroke-width: 0;
 }
 
+#wrapper {
+    padding-bottom: 5%;
+}
+
 #accordion {
     margin-top: 40px;
 }
@@ -41,6 +46,19 @@ body {
 #map-wrapper {
     background-color: whitesmoke;
     box-shadow: 0 0 6px 2px rgba(0,0,0,.1);
+}
+
+#orders-wrapper {
+    background-color: whitesmoke;
+    box-shadow: 0 0 6px 2px rgba(0,0,0,.1);
+    padding-top: 1%;
+    padding-bottom: 5%;
+}
+
+#refresh-wrapper {
+    padding-top: .5%;
+    padding-bottom: .5%;
+    display: inline-block;
 }
 
 #map {
