@@ -11,79 +11,22 @@ class Map extends React.Component<any, any> {
 
     private svg: Selection<d3.BaseType, {}, null, undefined>;
 
-    // Map dimensions must match aspect ratio of map image
-    private readonly mapDimensions = { width: 600, height: 529 };
+    private readonly mapDimensions = { 
+        height: +Configuration.mapHeightInPixels,
+        width: +Configuration.mapWidthInPixels 
+    };
+
+    private readonly margins = {
+        bottom: +Configuration.marginsBottom,
+        left: +Configuration.marginsLeft,
+        right: +Configuration.marginsRight,
+        top: +Configuration.marginsTop
+    }
+
+    private readonly positionUpdateIntervalInMs = 300;
 
     constructor(props: any, context: any) {
         super(props, context);
-    }
-
-    public async componentDidMount() {
-        this.mapDimensions.width = +Configuration.mapWidthInPixels;
-        this.mapDimensions.height = +Configuration.mapHeightInPixels;
-
-        const margins = {
-            bottom: +Configuration.marginsBottom,
-            left: +Configuration.marginsLeft,
-            right: +Configuration.marginsRight,
-            top: +Configuration.marginsTop
-        }
-
-        const svgDimensions = this.getSvgDimensions(this.mapDimensions.width, this.mapDimensions.height, margins)
-        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
-
-        const ref = d3.select(this.ref)
-
-        const svg = ref
-            .attr("width", svgDimensions.width)
-            .attr("height", svgDimensions.height)
-            .append("g")
-            .attr("transform",
-                "translate(" + margins.left + "," + margins.top + ")");
-
-        this.svg = svg;
-        const drawCursorText = this.drawCursorText;
-        const cursorTextX = this.mapDimensions.width - 80;
-        const cursorTextY = this.mapDimensions.height + 30;
-
-        const xRange = this.getXRange(gridDimensions);
-        const yRange = this.getYRange(gridDimensions);
-
-        this.drawCursorText(svg, cursorTextX, cursorTextY, [0.0, 0.0]);
-
-        // Draw map image
-        this.svg.append("svg:image")
-            .attr("xlink:href", "/map-simple.png")
-            .style("opacity", .5)
-            .attr("height", gridDimensions.height)
-            .attr("width", gridDimensions.width)
-            .on('mousemove', () => {
-                const coords = d3.mouse(d3.event.currentTarget);
-                coords[0] = xRange.invert(coords[0]);
-                coords[1] = yRange.invert(coords[1]);
-                drawCursorText(svg, cursorTextX, cursorTextY, coords);
-            })
-            .on('mouseout', () => {
-                drawCursorText(svg, cursorTextX, cursorTextY, [0.0, 0.0]);
-            });
-
-        this.drawLegend(0, this.mapDimensions.height + 30);
-
-        const robots = this.getRobots();
-        this.drawMap(xRange, yRange, gridDimensions, this.svg, robots);
-        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
-    }
-
-    public async componentDidUpdate() {
-        console.log("Called component did update.")
-
-        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
-
-        const xRange = this.getXRange(gridDimensions);
-        const yRange = this.getYRange(gridDimensions);
-
-        const robots = this.getRobots();
-        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
     }
 
     public render() {
@@ -92,6 +35,33 @@ class Map extends React.Component<any, any> {
                 <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref} />
             </div>
         );
+    }
+
+    public async componentDidMount() {
+        const svgDimensions = this.getSvgDimensions(this.mapDimensions.width, this.mapDimensions.height, this.margins)
+        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
+
+        const xRange = this.getXRange(gridDimensions);
+        const yRange = this.getYRange(gridDimensions);
+
+        this.svg = this.createSvgElement(svgDimensions.width, svgDimensions.height);
+        this.drawMapImage(xRange, yRange, gridDimensions, this.svg, this.drawCursorText);
+        this.drawLegend(0, this.mapDimensions.height + 30);
+        this.drawCursorText(gridDimensions, this.svg, [0,0]);
+
+        const robots = this.getRobots();
+        this.drawMap(xRange, yRange, gridDimensions, this.svg, robots);
+        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
+    }
+
+    public async componentDidUpdate() {
+        const gridDimensions = this.getGridDimensions(this.mapDimensions.width, this.mapDimensions.height);
+
+        const xRange = this.getXRange(gridDimensions);
+        const yRange = this.getYRange(gridDimensions);
+
+        const robots = this.getRobots();
+        this.drawRobotsOnMap(xRange, yRange, this.svg, robots);
     }
 
     public getSvgDimensions(mapWidth: number, mapHeight: number, margins: any) {
@@ -108,6 +78,41 @@ class Map extends React.Component<any, any> {
             width: mapWidth
         };
         return gridDimensions;
+    }
+
+    public createSvgElement(svgWidth: number, svgHeight: number) {
+        const ref = d3.select(this.ref)
+        .classed("svg-content", true);
+
+        const svg = ref
+            .attr("width",'100%')
+            .attr("height", '100%')
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
+            .append("g")
+            .attr("transform",
+                "translate(" + this.margins.left + "," + this.margins.top + ")");
+
+        return svg;
+    }
+
+    public drawMapImage(xRange: any, yRange: any, gridDimensions: any, svg: any, drawCursorText: any) {
+        
+        // Draw map image
+        this.svg.append("svg:image")
+        .attr("xlink:href", "/map-simple.png")
+        .style("opacity", .5)
+        .attr("height", gridDimensions.height)
+        .attr("width", gridDimensions.width)
+        .on('mousemove', () => {
+            const coords = d3.mouse(d3.event.currentTarget);
+            coords[0] = xRange.invert(coords[0]);
+            coords[1] = yRange.invert(coords[1]);
+            drawCursorText(gridDimensions, svg, coords);
+        })
+        .on('mouseout', () => {
+            drawCursorText(gridDimensions, svg, [0.0, 0.0]);
+        });
     }
 
     public makeGridlinesX(range: AxisScale<AxisDomain>) {
@@ -153,35 +158,41 @@ class Map extends React.Component<any, any> {
     }
 
     public drawRobotsOnMap(xRange: any, yRange: any, svg: any, robots: Robot[]) {
-        const robotElements = svg.selectAll("circle.robot")
+        
+        const robotElements = svg.selectAll("g.robot")
             .data(robots, (d: Robot) => {
                 return d.id
             });
 
-        // existing circles
-        robotElements
-            .attr("class", "robot")
+        // existing robot elements
+        const robotCircles = robotElements.selectAll("circle.robotCircle");
+        robotCircles.transition()
+            .duration(this.positionUpdateIntervalInMs) 
+            .attr("class", "robotCircle")
             .attr("pointer-events", "none")
             .attr("r", (d: Robot) => this.getRobotSize(d.id))
             .attr("cx", (d: Robot) => xRange(d.telemetry.position.x))
             .attr("cy", (d: Robot) => yRange(d.telemetry.position.y))
             .style("fill", (d: Robot) => this.getRobotColor(d.telemetry.status.toString()));
 
-        const robotLabels = svg.selectAll("text.robotLabels");
-
+        const robotLabels = robotElements.selectAll("text.robotLabel");
         robotLabels.text((d: Robot) => d.id)
-            .attr("x", (d: Robot) => xRange(d.telemetry.position.x) + (this.getRobotSize(d.id) / 2))
-            .attr("y", (d: Robot) => yRange(d.telemetry.position.y) - this.getRobotSize(d.id))
+            .transition()
+            .duration(this.positionUpdateIntervalInMs)
             .attr("pointer-events", "none")
-            .attr("class", "robotLabels")
+            .attr("class", "robotLabel")
+            .attr("x", (d: Robot) => xRange(d.telemetry.position.x) + (this.getRobotSize(d.id) / 2))
+            .attr("y", (d: Robot) => yRange(d.telemetry.position.y) - this.getRobotSize(d.id));
 
-        // new circles
+        // new robot elements
         const robotEntry = robotElements
-            .enter();
-
+            .enter()
+            .append("g")
+            .attr("class", "robot");
+        
         robotEntry.append("circle")
             .attr("pointer-events", "none")
-            .attr("class", "robot")
+            .attr("class", "robotCircle")
             .attr("r", (d: Robot) => this.getRobotSize(d.id))
             .attr("cx", (d: Robot) => xRange(d.telemetry.position.x))
             .attr("cy", (d: Robot) => yRange(d.telemetry.position.y))
@@ -189,11 +200,12 @@ class Map extends React.Component<any, any> {
 
         robotEntry.append("text")
             .text((d: Robot) => d.id)
+            .attr("pointer-events", "none")
+            .attr("class", "robotLabel")
             .attr("x", (d: Robot) => xRange(d.telemetry.position.x) + (this.getRobotSize(d.id) / 2))
             .attr("y", (d: Robot) => yRange(d.telemetry.position.y) - this.getRobotSize(d.id))
-            .attr("pointer-events", "none")
-            .attr("class", "robotLabels")
 
+        // remove old robot elements
         robotElements.exit().remove();
 
         return robotElements;
@@ -229,14 +241,17 @@ class Map extends React.Component<any, any> {
         return legend;
     }
 
-    public drawCursorText(svg: Selection<d3.BaseType, {}, null, undefined>, xOffset: number, yOffset: number, coords: number[]) {
+    public drawCursorText(gridDimensions: any, svg: Selection<d3.BaseType, {}, null, undefined>, coords: number[]) {
 
-        let textbox = svg.selectAll("g.textbox")
+        const xOffset = gridDimensions.width - 80;
+        const yOffset = gridDimensions.height + 30;
+
+        let textbox = svg.selectAll("g.cursortextbox")
             .data(["CursorTextbox"]);
 
         textbox = textbox.enter()
             .append("svg:g")
-            .attr("class", "textbox")
+            .attr("class", "cursortextbox")
             .attr("transform", (d: string) => {
                 return "translate(" + xOffset + "," + yOffset + ")";
             }).merge(textbox);
@@ -288,8 +303,8 @@ class Map extends React.Component<any, any> {
 
     private getRobotSize(robotId: string) {
 
-        const regularDotSize: number = 10;
-        const currentDotSize: number = 15;
+        const regularDotSize: number = 5;
+        const currentDotSize: number = 10;
 
         let dotSize: number;
 

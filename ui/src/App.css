@@ -8,8 +8,8 @@
 }
 
 .App-header {
-  background-color: #222;
-  height: 150px;
+  background-color: rgba(30, 73, 120, 0.831);
+  height: 100px;
   padding: 20px;
   color: white;
 }
@@ -43,8 +43,25 @@
     stroke-width: 0;
 }
 
+#accordion {
+    margin-top: 100px;
+}
+
 #map {
     padding: 100px;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.svg-content {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .legend {
@@ -60,8 +77,8 @@
     font-size: 12px;
 }
 
-.robotLabels {
-  font-weight: 300;
+.robotLabel {
+  font-weight: 400;
   font-family: "Work Sans";
   font-size: 10px;
 }

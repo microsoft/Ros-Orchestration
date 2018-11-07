@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Button, Col, Glyphicon, Grid, Row} from 'react-bootstrap';
+import {Col, Grid, Row} from 'react-bootstrap';
+import Configuration from './Configuration';
 import Map from './Map';
 import Robot from './Robot';
 import RobotInfoPanel from './RobotInfoPanel';
@@ -7,7 +8,7 @@ import RobotManagerClient from './RobotManagerClient';
 
 class RobotView extends React.Component <any, any>{
 
-    private static refreshInMs : number = 3000;
+    private static refreshInMs : number = +Configuration.refreshInMs;
 
     private robotManagerClient : RobotManagerClient;
 
@@ -60,16 +61,12 @@ class RobotView extends React.Component <any, any>{
 
     public render() {
         return (
-            <Grid>
-                <Button
-                    onClick={this.onRefreshAsync} bsStyle={"primary"}>
-                    Refresh  <Glyphicon glyph="refresh" />
-                </Button>
+            <Grid >
                 <Row>
-                    <Col xs={8} md={8}>
+                    <Col xs={9} md={9}>
                         <Map robots={this.state.robots} activeRobot={this.state.activeRobot}/>
                     </Col>
-                    <Col xs={4} md={4}>
+                    <Col xs={3} md={3}>
                         <RobotInfoPanel robots={this.state.robots} onSelect={this.onActiveRobot}/>
                     </Col>
                 </Row>
