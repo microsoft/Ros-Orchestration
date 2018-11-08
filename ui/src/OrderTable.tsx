@@ -31,7 +31,6 @@ class OrderTable extends React.Component <any, any>{
             { key: 'StartPosition', name: 'StartPosition', resizable: true  },
             { key: 'EndPosition', name: 'EndPosition', resizable: true  },
             { key: 'Status', name: 'Status', resizable: true  },
-            { key: 'JobStatus', name: 'Jobs', resizable: true  }, 
             { key: 'CreatedDateTime', name: 'CreatedDateTime', resizable: true  }, 
             { key: 'Message', name: 'Message', resizable: true  }   
         ];
@@ -87,10 +86,9 @@ class OrderTable extends React.Component <any, any>{
         if(null != this.orders){
             for (const order of this.orders) {
                 rows.push({
-                    CreatedDateTime : JSON.stringify(order.createdDateTime), 
+                    CreatedDateTime : order.createdDateTime.toString(), 
                     EndPosition : this.formatPosition(order.endPosition),
                     Id: order.id.toString(),
-                    Jobs : JSON.stringify(order.jobs),
                     Message : order.message,
                     StartPosition : this.formatPosition(order.startPosition),
                     Status : order.status
