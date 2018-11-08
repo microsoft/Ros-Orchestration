@@ -7,6 +7,18 @@
                     "repositoryUrl": "https://github.com/xinyiou/ros_azure_iothub.git",
                     "commitHash": "1496b4bf462df3b57ba0b954ec1bba94caa7d2fa"
                 }
+            },
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/pypa/pip.git"
+                }
+            },
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://aur.archlinux.org/ros-kinetic-rosbridge-library.git "
+                }
             }
         }
     ],
