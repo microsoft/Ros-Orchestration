@@ -7,17 +7,33 @@
                     "repositoryUrl": "https://github.com/xinyiou/ros_azure_iothub.git",
                     "commitHash": "1496b4bf462df3b57ba0b954ec1bba94caa7d2fa"
                 }
-            },
-            "component": {
-                "type": "git",
-                "git": {
-                    "repositoryUrl": "https://github.com/pypa/pip.git"
+            }
+        },
+        {
+            "Component": {
+                "Type": "other",
+                "Other": {
+                    "Name": "python-pip",
+                    "Version": "latest",
+                    "DownloadUrl": "https://codeload.github.com/pypa/pip/zip/master"
                 }
             },
+            "DevelopmentDependency": false
+        },
+        {
             "component": {
                 "type": "git",
                 "git": {
-                    "repositoryUrl": "https://aur.archlinux.org/ros-kinetic-rosbridge-library.git "
+                    "repositoryUrl": "https://aur.archlinux.org/ros-kinetic-rosbridge-library.git"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Azure/azure-iot-sdk-python.git",
+                    "commitHash": "568d7f9cde749ed2ddab3cadc474f59a911e6ff4"
                 }
             }
         }
