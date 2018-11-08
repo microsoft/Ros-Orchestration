@@ -24,7 +24,8 @@
             "component": {
                 "type": "git",
                 "git": {
-                    "repositoryUrl": "https://aur.archlinux.org/ros-kinetic-rosbridge-library.git"
+                    "repositoryUrl": "https://github.com/RobotWebTools/rosbridge_suite.git",
+                    "commitHash": "5c423b8b133e6444206ff3e287f3f4495b73e5dc"
                 }
             }
         },
