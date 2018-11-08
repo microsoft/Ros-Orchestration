@@ -11,11 +11,18 @@ class Configuration
     public static orderManagerUrl : string = "localhost:44307";
     public static orderManagerVersion : string = "1";
 
-    public static canvasWidth : string = "600";
-    public static canvasHeight : string = "500";
+    public static refreshInMs : number = 1000;
 
-    public static mapWidth : string = "63.9000";
-    public static mapHeight : string = "56.3000";
+    public static mapWidthInPixels : string = "600";
+    public static mapHeightInPixels : string = "529";
+
+    public static marginsTop : string = "40";
+    public static marginsRight : string = "25";
+    public static marginsBottom : string = "30";
+    public static marginsLeft : string = "25";
+
+    public static mapWidthInMeters : string = "63.9000";
+    public static mapHeightInMeters : string = "56.3000";
 
     public static async initialize()
     {

@@ -2,22 +2,27 @@
 // Licensed under the MIT License.
 
 import * as React from 'react';
-import {Button, Col, Glyphicon, Grid, Row} from 'react-bootstrap';
+import {Col, Grid, Row} from 'react-bootstrap';
+import Configuration from './Configuration';
+import Map from './Map';
 import Robot from './Robot';
 import RobotInfoPanel from './RobotInfoPanel';
 import RobotManagerClient from './RobotManagerClient';
-import RobotMap from './RobotMap';
 
 class RobotView extends React.Component <any, any>{
 
-    private static refreshInMs : number = 3000;
+    private static refreshInMs : number = +Configuration.refreshInMs;
 
     private robotManagerClient : RobotManagerClient;
 
     private interval : NodeJS.Timer;
 
+    private isCancelled : boolean;
+
     constructor(props: any, context: any) {
         super(props, context);
+
+        this.isCancelled = false;
 
         this.robotManagerClient = new RobotManagerClient();
 
@@ -31,10 +36,12 @@ class RobotView extends React.Component <any, any>{
     }
 
     public componentDidMount() {
+        this.getRobotsAsync();
         this.interval = setInterval(() => this.getRobotsAsync(), RobotView.refreshInMs);
     }
 
     public componentWillUnmount() {
+        this.isCancelled = true;
         clearInterval(this.interval);
     }
 
@@ -43,12 +50,11 @@ class RobotView extends React.Component <any, any>{
 
         const robotsInfo : Robot[] = this.robotManagerClient.responseRobots;
 
-        if(robotsInfo !== undefined){
+        if(robotsInfo !== undefined && this.isCancelled === false){
             this.setState({
                 robots : robotsInfo
             });
         }
-        
     }
 
     public async onRefreshAsync() {
@@ -63,16 +69,12 @@ class RobotView extends React.Component <any, any>{
 
     public render() {
         return (
-            <Grid>
-                <Button
-                    onClick={this.onRefreshAsync} bsStyle={"primary"}>
-                    Refresh  <Glyphicon glyph="refresh" />
-                </Button>
+            <Grid id={"wrapper"}>
                 <Row>
-                    <Col xs={12} md={7}>
-                        <RobotMap robots={this.state.robots} telemetries={this.state.telemetries} activeRobot={this.state.activeRobot}/>
+                    <Col xs={12} md={9} id={"map-wrapper"}>
+                        <Map robots={this.state.robots} activeRobot={this.state.activeRobot}/>
                     </Col>
-                    <Col xs={12} md={5}>
+                    <Col xs={12} md={3}>
                         <RobotInfoPanel robots={this.state.robots} onSelect={this.onActiveRobot}/>
                     </Col>
                 </Row>

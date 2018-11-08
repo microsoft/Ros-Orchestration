@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import * as React from 'react';
-import { Tab, Tabs } from 'react-bootstrap';
+import { Nav, Navbar, NavItem } from 'react-bootstrap'
+import { NavLink, Redirect, Route, Switch } from 'react-router-dom'; // import the react-router-dom components
 import './App.css';
 import Configuration from './Configuration';
-import OrderTable from './OrderTable';
-import RobotView from './RobotView';
+import { Orders, Visualization } from './Pages'
 
 class App extends React.Component<any, any>{
 
@@ -30,23 +30,9 @@ class App extends React.Component<any, any>{
   public render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Robot Orchestrator Panel</h1>
-        </header>
-
+        <this.Header />
         {this.state && this.state.configLoaded &&
-          <Tabs animation={false}
-            mountOnEnter={true}
-            activeKey={this.state.key}
-            onSelect={this.handleSelect}
-            id="table-selection-tabs" >
-            <Tab eventKey={1} title="Map">
-              <RobotView />
-            </Tab>
-            <Tab eventKey={2} title="Orders">
-              <OrderTable />
-            </Tab>
-          </Tabs>
+         <this.Main />
         }
       </div>
     );
@@ -55,6 +41,46 @@ class App extends React.Component<any, any>{
   private handleSelect(key: any) {
     this.setState({ key });
   }
+
+  private Header = () => (
+    <Navbar inverse={true} collapseOnSelect={true}>
+        <Navbar.Header>
+            <Navbar.Brand>
+                <a href="#"><span id="brand">Ros-Orchestrator</span></a>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+        </Navbar.Header>
+        <Navbar.Collapse>
+            <Nav>
+                <NavItem eventKey={1} componentClass='span'>
+                    <NavLink className="nav-link" to="/Visualization" replace={true} ><span>Visualization</span></NavLink>
+                </NavItem>
+                <NavItem eventKey={2} componentClass='span'>
+                    <NavLink className="nav-link" to="/Orders" replace={true} ><span>Orders</span></NavLink>
+                </NavItem>
+            </Nav>
+            <Nav pullRight={true}>
+                <NavItem eventKey={3} href="https://github.com/Microsoft/Ros-Orchestration">
+                    <span>GitHub Repo</span>
+                </NavItem>
+            </Nav>
+        </Navbar.Collapse>
+    </Navbar>
+  )
+
+  private Main = () => (
+    <main>
+        <Switch>
+            <Route exact={true} path='/' render={RedirectVisualization} />
+            <Route exact={true} path='/Visualization' render={Visualization} />
+            <Route exact={true} path='/Orders' render={Orders}/>
+        </Switch>
+    </main>
+  );
+}
+
+const RedirectVisualization = () => {
+    return <Redirect to='/Visualization'/>
 }
 
 export default App;

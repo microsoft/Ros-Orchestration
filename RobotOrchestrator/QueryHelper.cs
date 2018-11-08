@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace RobotOrchestrator
 {
@@ -19,7 +20,14 @@ namespace RobotOrchestrator
         public QueryHelper(IDocumentClient client, Uri documentCollectionUri)
         {
             // create base query
-            Query = client.CreateDocumentQuery<T>(documentCollectionUri, new FeedOptions { EnableCrossPartitionQuery = true });
+            Query = client.CreateDocumentQuery<T>(documentCollectionUri, new FeedOptions
+            {
+                EnableCrossPartitionQuery = true,
+                JsonSerializerSettings = new JsonSerializerSettings()
+                {
+                    DateParseHandling = DateParseHandling.None
+                }
+            });
         }
 
         public QueryHelper<T> ByExpression(Expression<Func<T, bool>> expression)

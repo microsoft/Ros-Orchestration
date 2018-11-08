@@ -25,17 +25,17 @@ namespace RobotOrchestrator.OrderManager
             this.cosmosdbClient = cosmosdbClient;
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersAsync(OrderStatus? status)
+        public async Task<IEnumerable<Order>> GetOrdersAsync(OrderStatus? status, int? numOrders = 25)
         {
             IEnumerable<Order> orders;
 
             if (status == null)
             {
-                orders = await cosmosdbClient.GetItemsAsync();
+                orders = await cosmosdbClient.GetItemsAsync(orderByExpression: o => o.CreatedDateTime, n: numOrders);
             }
             else
             {
-                orders = await cosmosdbClient.GetItemsAsync(r => r.Status == status);
+                orders = await cosmosdbClient.GetItemsAsync(o => o.Status == status, o => o.CreatedDateTime, numOrders);
             }
 
             return orders;

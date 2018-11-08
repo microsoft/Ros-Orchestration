@@ -13,7 +13,7 @@ namespace RobotOrchestrator.OrderManager
 
         Task<Order> AcceptOrderAsync(Order order, string robotId = null);
 
-        Task<IEnumerable<Order>> GetOrdersAsync(OrderStatus? status);
+        Task<IEnumerable<Order>> GetOrdersAsync(OrderStatus? status, int? numOrders);
 
         Task<Order> GetOrderAsync(Guid id);
     }

@@ -23,13 +23,13 @@ namespace RobotOrchestrator.OrderManager.Controllers
 
         [HttpGet]
         [EnableCors("AllowAllOrigin")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersAsync(OrderStatus? status)
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersAsync(OrderStatus? status, int? numOrders)
         {
             IEnumerable<Order> orders;
 
             try
             {
-                orders = await orderManager.GetOrdersAsync(status);
+                orders = await orderManager.GetOrdersAsync(status, numOrders);
             }
             catch (Exception ex)
             {
