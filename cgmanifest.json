@@ -1,0 +1,14 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/xinyiou/argos3.git",
+                    "commitHash": "83dcc4d0d09ef706651c590be4830ffc2f6e850b"
+                }
+            }
+        }
+    ],
+    "Version": 1
+}
