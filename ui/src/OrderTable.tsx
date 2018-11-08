@@ -89,7 +89,6 @@ class OrderTable extends React.Component <any, any>{
                     CreatedDateTime : order.createdDateTime.toString(), 
                     EndPosition : this.formatPosition(order.endPosition),
                     Id: order.id.toString(),
-                    Jobs : JSON.stringify(order.jobs),
                     Message : order.message,
                     StartPosition : this.formatPosition(order.startPosition),
                     Status : order.status
