@@ -4,8 +4,8 @@
             "component": {
                 "type": "git",
                 "git": {
-                    "repositoryUrl": "https://github.com/xinyiou/argos3.git",
-                    "commitHash": "83dcc4d0d09ef706651c590be4830ffc2f6e850b"
+                    "repositoryUrl": "https://github.com/xinyiou/ros_azure_iothub.git",
+                    "commitHash": "1496b4bf462df3b57ba0b954ec1bba94caa7d2fa"
                 }
             }
         }
