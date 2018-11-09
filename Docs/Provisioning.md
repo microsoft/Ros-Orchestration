@@ -57,7 +57,7 @@ Then, in order to add the access policy for the service principal, run:
     az keyvault set-policy --name <keyVaultName> --spn <servicePrincipalClientId> --secret-permissions "list" "set" "get"
 ```
 
-** Find the `<keyvaultName>` from the output of the key vault deploy or look in the portal, and get the service principal client id, or app id, from the step above. **
+**Find the `<keyvaultName>` from the output of the key vault deploy or look in the portal, and get the service principal client id, or app id, from the step above.**
 
 Key vault is deployed in a separate ARM template because of a current restriction that access policies defined in the template will override manual access policies set in the portal.
 
