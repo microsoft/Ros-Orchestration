@@ -27,7 +27,7 @@ steps:
     docker tag $(registry)/$(simulatorBaseImageName) simulator
 
     # Build new simulator-orch image
-    docker build -f ./Robot/Dockerfile-simulator -t $(registry)/$(simulatorImageName) .
+    docker build -f ./Robot/Dockerfile-simulator -t $(registry)/$(simulatorImageName) ./Robot/.
   displayName: 'docker build $(simulatorImageName)'
 
 - script: |
@@ -37,7 +37,7 @@ steps:
     docker tag $(registry)/$(robotBaseImageName) robot
 
     # Build new robot-orch image
-    docker build -f ./Robot/Dockerfile-robot -t $(registry)/$(robotImageName) .
+    docker build -f ./Robot/Dockerfile-robot -t $(registry)/$(robotImageName) ./Robot/.
   displayName: 'docker build $(robotImageName)'
 
 - script: |
