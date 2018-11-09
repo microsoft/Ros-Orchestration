@@ -24,7 +24,9 @@ Save the Client Id (also known as App Id) and Client Secret for the service prin
 
 ## Deploy Key Vault
 
-First, edit the envName in the command below to be something unique (such as envName="myprojdev"). The same env name must be used in the [Deploy All Other Azure Resources](#Deploy-All-Other-Azure-Resources) section below. Since these values are concatenated to form globally unique values, do not set envName to be "dev" or "prod", since those will likely be taken.
+First, edit the envName in the command below to be something unique (such as envName="myprojdev"). The envName must only be alphanumeric. Since these values are concatenated to form globally unique values, do not set envName to be "dev" or "prod", since those will likely be taken.
+
+The same env name must be used later in the [Deploy All Other Azure Resources](#Deploy-All-Other-Azure-Resources) section below.
 
 ```bash
 cd Provisioning
@@ -36,7 +38,7 @@ az group deployment create \
     --query 'properties.outputs'
 ```
 
-This command will deploy the following resources:
+The command above will deploy the following resources:
 
 - Key Vault
 
