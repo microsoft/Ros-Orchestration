@@ -48,13 +48,17 @@ The UI is a simple visualization tool to see what is happening in the orchestrat
 
 It has two main pages:
 
+1. Map
+
+    This shows the map image as well as the robot locations on the map. The robot panel has a list of all robots in the orchestration system. When the robot panel is clicked, it will pull down more information about the status and location of the robot.
+
+    <img src="../images/UiMap.png" alt="UI Orders" width="600" />
+
 1. Orders
 
     This displays the most recent orders that have flown into the system.
 
-1. Map
-
-    This shows the map image as well as the robot locations on the map. The robot panel has a list of all robots in the orchestration system. When the robot panel is clicked, it will pull down more information about the status and location of the robot.
+    <img src="../images/UiOrders.png" alt="UI Orders" width="600" />
 
 ## IotHub
 

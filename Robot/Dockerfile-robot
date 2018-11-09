@@ -1,4 +1,4 @@
-FROM robotorchacrdev.azurecr.io/robot-base
+FROM robot
 
 # Install pip and iot hub relay dependencies
 RUN apt-get update \
