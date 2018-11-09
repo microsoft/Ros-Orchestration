@@ -5,7 +5,7 @@
 
 name: Ros-Orchestration-CI
 
-queue: 'Hosted Linux Preview'
+queue: 'Hosted Ubuntu 1604'
 
 pr: none
 trigger:
