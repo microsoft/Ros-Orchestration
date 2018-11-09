@@ -38,6 +38,10 @@
       }
     ],
     "outputs": {
+        "keyVaultName": {
+            "type": "string",
+            "value": "[variables('keyVaultName')]"        
+        }
     }
   }
   
