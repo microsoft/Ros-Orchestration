@@ -8,7 +8,7 @@ Make sure to follow the steps in docs/RunSimulationEndToEnd.md for installing th
 
 ## Build and Push Containers
 
-See the **Ros-Simulation** docs/ContainerManagement.md for creating an Azure Container Registry (ACR) and building the docker images of ```simulator``` and ```robot```. Based on these two docker images, build the correspoding ```simulator``` and ```robot``` docker images for **Ros-Orchestrator** from [Dockerfile-simulator](../Robot/Dockerfile-simulator) and [Dockerfile-robot](../Robot/Dockerfile-robot), respectively. Please note that you may need to change the base image names behind **From** in the two Dockerfiles. 
+See the **Ros-Simulation** docs/ContainerManagement.md for steps to build the base docker images of ```simulator``` and ```robot```. Based on these two docker images, build the corresponding ```simulator``` and ```robot``` docker images for **Ros-Orchestration** from [Dockerfile-simulator](../Robot/Dockerfile-simulator) and [Dockerfile-robot](../Robot/Dockerfile-robot), respectively. Please note that you may need to change the base image names behind **From** in the two Dockerfiles.
 
 ```console
     # Move to the Robot folder
@@ -18,6 +18,8 @@ See the **Ros-Simulation** docs/ContainerManagement.md for creating an Azure Con
     # Build the Robot image for Ros-Orchestrator
 > docker build -t robot-orch . -f "Dockerfile-robot"
 ```
+
+Once you have build the Docker images for the Orchestration, push the docker images to the Azure Container Registry (ACR) created in the [provisioning](./Provisioning.md) steps. For more information on how to login to ACR, tag, and push images, see [ACR Documentation](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-docker-cli)
 
 ## Install Helm Chart
 
