@@ -64,6 +64,8 @@ namespace RobotOrchestrator
                 Id = collectionName
             };
 
+            collection.IndexingPolicy = new IndexingPolicy(new RangeIndex(DataType.String) { Precision = -1 });
+
             if (!string.IsNullOrEmpty(partitionName))
             {
                 collection.PartitionKey = new PartitionKeyDefinition
