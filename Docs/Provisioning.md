@@ -56,7 +56,7 @@ You should see the output, which will tell you the final keyVaultName (based on 
 Then, in order to add the access policy for the service principal, run:
 
 ```bash
-    az keyvault set-policy --name <keyVaultName> --spn <servicePrincipalClientId> --secret-permissions "list" "set" "get"
+az keyvault set-policy --name <keyVaultName> --spn <servicePrincipalClientId> --secret-permissions "list" "set" "get"
 ```
 
 **Find the `<keyvaultName>` from the output of the key vault deploy or look in the portal, and get the service principal client id, or app id, from the step above.**
