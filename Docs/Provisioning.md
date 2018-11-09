@@ -24,20 +24,25 @@ Save the Client Id (also known as App Id) and Client Secret for the service prin
 
 ## Deploy Key Vault
 
+First, edit the env name in the [keyvault.parameters.json](../Provisioning/keyvault.parameters.json) file to be something unique. The same env name must be used in the [Deploy All Other Azure Resources](#Deploy-All-Other-Azure-Resources) section below.
+
 ```bash
 cd Provisioning
 az group deployment create \
     -n keyvaultdeploy -g <resourceGroupName> \
     --template-file keyvault.json \
-    --parameters keyvault.parameters.json \
-    --parameters keyVaultClientId=<clientId> \
-    --parameters keyVaultClientSecret=<clientSecret>
+    --parameters keyvault.parameters.json
 ```
 
 This command will deploy the following resources:
 
 - Key Vault
-- Key Vault Access Policy for Service Principal
+
+Then, in order to add the access policy for the service principal, run:
+
+```bash
+    az keyvault set-policy --name <keyvaultName> --spn <servicePrincipalClientId> --secret-permissions "list" "set" "get"
+```
 
 Key vault is deployed in a separate ARM template because of a current restriction that access policies defined in the template will override manual access policies set in the portal.
 
