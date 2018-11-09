@@ -14,8 +14,8 @@ trigger:
     - master
 
 variables:
-  simulatorBaseImageName: simulator:$(build.TriggeredBy.BuildId)
-  robotBaseImageName: robot:$(build.TriggeredBy.BuildId)
+  simulatorBaseImageName: simulator:latest
+  robotBaseImageName: robot:latest
   simulatorImageName: 'simulator-orch:$(build.buildId)'
   robotImageName: 'robot-orch:$(build.buildId)'
 
