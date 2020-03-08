@@ -21,6 +21,6 @@ To get set up for development and start running the robot orchestration suite, s
 ## Linters
 
 * Markdown (.md) files: [Markdown Lint for VS Code](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
-* C#: [C# for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+* C#: [C# for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
 * Shell scripts (.sh): [Shellcheck for VS Code](https://github.com/timonwong/vscode-shellcheck/blob/master/README.md)
 * Spelling: [Code Spell Checker for VS Code](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)
